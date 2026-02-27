@@ -1,0 +1,27 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "denden"
+version = "0.1.0"
+description = "Agent to Agent Communication Layer"
+readme = "../README.md"
+license = "MIT"
+requires-python = ">=3.10"
+dependencies = [
+    "grpcio>=1.60",
+    "protobuf>=4.25",
+]
+
+[project.optional-dependencies]
+dev = [
+    "grpcio-tools>=1.60",
+    "pytest>=8.0",
+]
+
+[project.scripts]
+denden-server = "denden.__main__:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/denden"]
