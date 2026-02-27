@@ -1,0 +1,63 @@
+name: Release PyPI
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "server/**"
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: write
+
+jobs:
+  release:
+    name: Build and publish to PyPI
+    runs-on: ubuntu-latest
+    environment: pypi
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Determine version
+        id: version
+        run: |
+          LATEST=$(git tag --list 'server-v*' --sort=-v:refname | head -n1)
+          if [ -z "$LATEST" ]; then
+            echo "tag=server-v0.1.0" >> "$GITHUB_OUTPUT"
+            echo "pypi_version=0.1.0" >> "$GITHUB_OUTPUT"
+          else
+            PATCH=$(echo "$LATEST" | sed 's/server-v//' | cut -d. -f3)
+            MAJOR=$(echo "$LATEST" | sed 's/server-v//' | cut -d. -f1)
+            MINOR=$(echo "$LATEST" | sed 's/server-v//' | cut -d. -f2)
+            NEW_PATCH=$((PATCH + 1))
+            echo "tag=server-v${MAJOR}.${MINOR}.${NEW_PATCH}" >> "$GITHUB_OUTPUT"
+            echo "pypi_version=${MAJOR}.${MINOR}.${NEW_PATCH}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Update version in pyproject.toml
+        working-directory: server
+        run: |
+          sed -i "s/^version = .*/version = \"${{ steps.version.outputs.pypi_version }}\"/" pyproject.toml
+
+      - name: Build package
+        working-directory: server
+        run: |
+          pip install build
+          python -m build
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: server/dist/
+
+      - name: Tag release
+        run: |
+          git tag "${{ steps.version.outputs.tag }}"
+          git push origin "${{ steps.version.outputs.tag }}"
