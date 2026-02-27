@@ -1,0 +1,30 @@
+name: Python CI
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "server/**"
+      - "proto/**"
+  pull_request:
+
+jobs:
+  test:
+    name: Python tests (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    defaults:
+      run:
+        working-directory: server
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - run: pip install -e '.[dev]'
+
+      - run: python -m pytest tests/test_server.py -v
