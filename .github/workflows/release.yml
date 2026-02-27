@@ -6,6 +6,7 @@ on:
     paths:
       - "cli/**"
       - "denden-cli/SKILL.md"
+  workflow_dispatch:
 
 permissions:
   contents: write
