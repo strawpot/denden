@@ -49,7 +49,7 @@ environment:
   DENDEN_ADDR              server address (default: 127.0.0.1:9700)
   DENDEN_AGENT_ID          this agent's instance ID (auto-set by orchestrator)
   DENDEN_PARENT_AGENT_ID   parent agent's instance ID
-  DENDEN_WORKTREE_ID       worktree ID
+  DENDEN_RUN_ID            run ID
   DENDEN_TIMEOUT           request timeout e.g. "30s" (default: 30s)`)
 }
 
@@ -89,8 +89,8 @@ func handleSend() {
 	if req.Trace.ParentAgentInstanceId == "" {
 		req.Trace.ParentAgentInstanceId = os.Getenv("DENDEN_PARENT_AGENT_ID")
 	}
-	if req.Trace.WorktreeId == "" {
-		req.Trace.WorktreeId = os.Getenv("DENDEN_WORKTREE_ID")
+	if req.Trace.RunId == "" {
+		req.Trace.RunId = os.Getenv("DENDEN_RUN_ID")
 	}
 
 	// Validate that a payload is set (oneof).

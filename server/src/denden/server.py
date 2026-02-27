@@ -47,7 +47,7 @@ class DendenServicer(denden_pb2_grpc.DendenServicer):
             )
         if request.HasField("trace"):
             trace = request.trace
-            if not trace.worktree_id and not trace.agent_instance_id:
+            if not trace.run_id and not trace.agent_instance_id:
                 logger.warning("request %s missing trace fields", request.request_id)
 
         payload_type = request.WhichOneof("payload")
@@ -95,7 +95,6 @@ def ok_response(
     *,
     ask_user_result: denden_pb2.AskUserResult | None = None,
     delegate_result: denden_pb2.DelegateResult | None = None,
-    meta: denden_pb2.ResponseMeta | None = None,
 ) -> denden_pb2.DenDenResponse:
     kwargs: dict = {
         "denden_version": VERSION,
@@ -106,24 +105,18 @@ def ok_response(
         kwargs["ask_user_result"] = ask_user_result
     if delegate_result is not None:
         kwargs["delegate_result"] = delegate_result
-    if meta is not None:
-        kwargs["meta"] = meta
     return denden_pb2.DenDenResponse(**kwargs)
 
 
 def denied_response(
     request_id: str, code: str, message: str,
-    meta: denden_pb2.ResponseMeta | None = None,
 ) -> denden_pb2.DenDenResponse:
-    kwargs: dict = {
-        "denden_version": VERSION,
-        "request_id": request_id,
-        "status": denden_pb2.DENIED,
-        "error": denden_pb2.ErrorDetail(code=code, message=message, retryable=False),
-    }
-    if meta is not None:
-        kwargs["meta"] = meta
-    return denden_pb2.DenDenResponse(**kwargs)
+    return denden_pb2.DenDenResponse(
+        denden_version=VERSION,
+        request_id=request_id,
+        status=denden_pb2.DENIED,
+        error=denden_pb2.ErrorDetail(code=code, message=message, retryable=False),
+    )
 
 
 def _error_response(
@@ -141,19 +134,15 @@ def _error_response(
 
 def error_response(
     request_id: str, code: str, message: str, retryable: bool = False,
-    meta: denden_pb2.ResponseMeta | None = None,
 ) -> denden_pb2.DenDenResponse:
-    kwargs: dict = {
-        "denden_version": VERSION,
-        "request_id": request_id,
-        "status": denden_pb2.ERROR,
-        "error": denden_pb2.ErrorDetail(
+    return denden_pb2.DenDenResponse(
+        denden_version=VERSION,
+        request_id=request_id,
+        status=denden_pb2.ERROR,
+        error=denden_pb2.ErrorDetail(
             code=code, message=message, retryable=retryable
         ),
-    }
-    if meta is not None:
-        kwargs["meta"] = meta
-    return denden_pb2.DenDenResponse(**kwargs)
+    )
 
 
 class DenDenServer:
