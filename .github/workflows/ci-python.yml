@@ -7,9 +7,6 @@ on:
       - "server/**"
       - "proto/**"
   pull_request:
-    paths:
-      - "server/**"
-      - "proto/**"
 
 jobs:
   test:

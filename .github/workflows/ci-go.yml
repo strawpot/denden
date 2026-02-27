@@ -7,9 +7,6 @@ on:
       - "cli/**"
       - "proto/**"
   pull_request:
-    paths:
-      - "cli/**"
-      - "proto/**"
 
 jobs:
   test:
