@@ -38,7 +38,7 @@ def _delegate_request(request_id: str = "req-2") -> denden_pb2.DenDenRequest:
         denden_version=VERSION,
         request_id=request_id,
         delegate=denden_pb2.DelegatePayload(
-            delegate_to=denden_pb2.IMPLEMENTER,
+            delegate_to="implementer",
             task=denden_pb2.Task(text="do the thing"),
         ),
     )
@@ -49,17 +49,12 @@ def _echo_handler(request: denden_pb2.DenDenRequest) -> denden_pb2.DenDenRespons
     if request.WhichOneof("payload") == "ask_user":
         return ok_response(
             request.request_id,
-            ask_user_result=denden_pb2.AskUserResult(
-                immediate=denden_pb2.ImmediateAnswer(text=request.ask_user.question),
-            ),
+            ask_user_result=denden_pb2.AskUserResult(text=request.ask_user.question),
         )
     return ok_response(
         request.request_id,
         delegate_result=denden_pb2.DelegateResult(
-            delegation=denden_pb2.Delegation(
-                summary=request.delegate.task.text,
-                status=denden_pb2.DELEGATION_OK,
-            ),
+            summary=request.delegate.task.text,
         ),
     )
 
@@ -96,13 +91,13 @@ class TestDendenServicer:
         self.servicer.set_handler("ask_user", _echo_handler)
         resp = self.servicer.Send(_ask_request(), None)
         assert resp.status == denden_pb2.OK
-        assert resp.ask_user_result.immediate.text == "pick a color"
+        assert resp.ask_user_result.text == "pick a color"
 
     def test_delegate_dispatch(self):
         self.servicer.set_handler("delegate", _echo_handler)
         resp = self.servicer.Send(_delegate_request(), None)
         assert resp.status == denden_pb2.OK
-        assert resp.delegate_result.delegation.summary == "do the thing"
+        assert resp.delegate_result.summary == "do the thing"
 
     def test_handler_exception(self):
         def bad_handler(req):
@@ -132,30 +127,18 @@ class TestDendenServicer:
 
 class TestResponseHelpers:
     def test_ok_response_ask_user(self):
-        result = denden_pb2.AskUserResult(
-            immediate=denden_pb2.ImmediateAnswer(text="blue"),
-        )
+        result = denden_pb2.AskUserResult(text="blue")
         resp = ok_response("req-1", ask_user_result=result)
         assert resp.status == denden_pb2.OK
         assert resp.request_id == "req-1"
         assert resp.denden_version == VERSION
-        assert resp.ask_user_result.immediate.text == "blue"
+        assert resp.ask_user_result.text == "blue"
 
     def test_ok_response_delegate(self):
-        result = denden_pb2.DelegateResult(
-            delegation=denden_pb2.Delegation(
-                summary="done",
-                status=denden_pb2.DELEGATION_OK,
-            ),
-        )
+        result = denden_pb2.DelegateResult(summary="done")
         resp = ok_response("req-2", delegate_result=result)
         assert resp.status == denden_pb2.OK
-        assert resp.delegate_result.delegation.summary == "done"
-
-    def test_ok_response_with_meta(self):
-        meta = denden_pb2.ResponseMeta(orchestrator_action_id="act-1")
-        resp = ok_response("req-1", meta=meta)
-        assert resp.meta.orchestrator_action_id == "act-1"
+        assert resp.delegate_result.summary == "done"
 
     def test_denied_response(self):
         resp = denied_response("req-1", DENY_ROLE_NOT_ALLOWED, "nope")
@@ -219,14 +202,13 @@ class TestGRPCIntegration:
         stub = denden_pb2_grpc.DendenStub(grpc_server)
         resp = stub.Send(_ask_request())
         assert resp.status == denden_pb2.OK
-        assert resp.ask_user_result.immediate.text == "pick a color"
+        assert resp.ask_user_result.text == "pick a color"
 
     def test_send_delegate(self, grpc_server):
         stub = denden_pb2_grpc.DendenStub(grpc_server)
         resp = stub.Send(_delegate_request())
         assert resp.status == denden_pb2.OK
-        assert resp.delegate_result.delegation.summary == "do the thing"
-        assert resp.delegate_result.delegation.status == denden_pb2.DELEGATION_OK
+        assert resp.delegate_result.summary == "do the thing"
 
     def test_send_no_payload(self, grpc_server):
         stub = denden_pb2_grpc.DendenStub(grpc_server)

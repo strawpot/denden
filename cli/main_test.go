@@ -40,9 +40,7 @@ func (s *echoServer) Send(ctx context.Context, req *pb.DenDenRequest) (*pb.DenDe
 			Status:        pb.ResponseStatus_OK,
 			Result: &pb.DenDenResponse_AskUserResult{
 				AskUserResult: &pb.AskUserResult{
-					Immediate: &pb.ImmediateAnswer{
-						Content: &pb.ImmediateAnswer_Text{Text: p.AskUser.Question},
-					},
+					Content: &pb.AskUserResult_Text{Text: p.AskUser.Question},
 				},
 			},
 		}, nil
@@ -53,10 +51,7 @@ func (s *echoServer) Send(ctx context.Context, req *pb.DenDenRequest) (*pb.DenDe
 			Status:        pb.ResponseStatus_OK,
 			Result: &pb.DenDenResponse_DelegateResult{
 				DelegateResult: &pb.DelegateResult{
-					Delegation: &pb.Delegation{
-						Summary: p.Delegate.Task.Text,
-						Status:  pb.DelegationStatus_DELEGATION_OK,
-					},
+					Summary: p.Delegate.Task.Text,
 				},
 			},
 		}, nil
@@ -146,14 +141,14 @@ func TestSendAskUser(t *testing.T) {
 	if resp.Status != pb.ResponseStatus_OK {
 		t.Errorf("expected OK, got %v", resp.Status)
 	}
-	if resp.GetAskUserResult().GetImmediate().GetText() != "what color?" {
-		t.Errorf("unexpected answer: %s", resp.GetAskUserResult().GetImmediate().GetText())
+	if resp.GetAskUserResult().GetText() != "what color?" {
+		t.Errorf("unexpected answer: %s", resp.GetAskUserResult().GetText())
 	}
 }
 
 func TestSendDelegate(t *testing.T) {
 	addr := startTestServer(t)
-	stdout, _, exitCode := runCLI(t, addr, "send", `{"delegate":{"delegateTo":"IMPLEMENTER","task":{"text":"build it"}}}`)
+	stdout, _, exitCode := runCLI(t, addr, "send", `{"delegate":{"delegateTo":"implementer","task":{"text":"build it"}}}`)
 
 	if exitCode != 0 {
 		t.Fatalf("expected exit 0, got %d", exitCode)
@@ -164,8 +159,8 @@ func TestSendDelegate(t *testing.T) {
 		t.Fatalf("failed to parse response: %v", err)
 	}
 
-	if resp.GetDelegateResult().GetDelegation().GetSummary() != "build it" {
-		t.Errorf("unexpected summary: %s", resp.GetDelegateResult().GetDelegation().GetSummary())
+	if resp.GetDelegateResult().GetSummary() != "build it" {
+		t.Errorf("unexpected summary: %s", resp.GetDelegateResult().GetSummary())
 	}
 }
 
@@ -278,7 +273,7 @@ func TestAutoFillTimestamp(t *testing.T) {
 
 // Test parseAndFill logic directly (without subprocess).
 func TestParseRequest(t *testing.T) {
-	raw := `{"askUser":{"question":"test","choices":["a","b"]},"trace":{"role":"PLANNER"}}`
+	raw := `{"askUser":{"question":"test","choices":["a","b"]}}`
 
 	req := &pb.DenDenRequest{}
 	opts := protojson.UnmarshalOptions{DiscardUnknown: true}
@@ -295,13 +290,10 @@ func TestParseRequest(t *testing.T) {
 	if len(req.GetAskUser().Choices) != 2 {
 		t.Errorf("expected 2 choices, got %d", len(req.GetAskUser().Choices))
 	}
-	if req.Trace.Role != pb.Role_PLANNER {
-		t.Errorf("expected PLANNER role, got %v", req.Trace.Role)
-	}
 }
 
 func TestParseDelegateRequest(t *testing.T) {
-	raw := `{"delegate":{"delegateTo":"REVIEWER","task":{"text":"review code","returnFormat":"OUTPUT_PATCH"}}}`
+	raw := `{"delegate":{"delegateTo":"reviewer","task":{"text":"review code","returnFormat":"TEXT"}}}`
 
 	req := &pb.DenDenRequest{}
 	opts := protojson.UnmarshalOptions{DiscardUnknown: true}
@@ -312,11 +304,11 @@ func TestParseDelegateRequest(t *testing.T) {
 	if req.GetDelegate() == nil {
 		t.Fatal("expected delegate payload")
 	}
-	if req.GetDelegate().DelegateTo != pb.Role_REVIEWER {
-		t.Errorf("expected REVIEWER, got %v", req.GetDelegate().DelegateTo)
+	if req.GetDelegate().DelegateTo != "reviewer" {
+		t.Errorf("expected reviewer, got %v", req.GetDelegate().DelegateTo)
 	}
-	if req.GetDelegate().Task.ReturnFormat != pb.OutputFormat_OUTPUT_PATCH {
-		t.Errorf("expected OUTPUT_PATCH, got %v", req.GetDelegate().Task.ReturnFormat)
+	if req.GetDelegate().Task.ReturnFormat != pb.Format_TEXT {
+		t.Errorf("expected TEXT, got %v", req.GetDelegate().Task.ReturnFormat)
 	}
 }
 

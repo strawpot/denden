@@ -33,9 +33,7 @@ CLI_BIN = CLI_DIR / "denden"
 def _ask_handler(request: denden_pb2.DenDenRequest) -> denden_pb2.DenDenResponse:
     return ok_response(
         request.request_id,
-        ask_user_result=denden_pb2.AskUserResult(
-            immediate=denden_pb2.ImmediateAnswer(text=request.ask_user.question),
-        ),
+        ask_user_result=denden_pb2.AskUserResult(text=request.ask_user.question),
     )
 
 
@@ -44,20 +42,8 @@ def _delegate_handler(request: denden_pb2.DenDenRequest) -> denden_pb2.DenDenRes
     return ok_response(
         request.request_id,
         delegate_result=denden_pb2.DelegateResult(
-            delegation=denden_pb2.Delegation(
-                summary=task.text,
-                status=denden_pb2.DELEGATION_OK,
-                output_format=task.return_format,
-            ),
-        ),
-        meta=denden_pb2.ResponseMeta(
-            sub_agent_instance_id="sub-agent-1",
-            applied_policy=denden_pb2.AppliedPolicy(
-                max_tokens=4096,
-                timeout_seconds=60,
-                depth=1,
-                depth_limit=3,
-            ),
+            summary=task.text,
+            output_format=task.return_format,
         ),
     )
 
@@ -152,8 +138,8 @@ class TestE2EAskUser:
         )
         assert ec == 0
         resp = json.loads(stdout)
-        assert resp["status"] == "OK"
-        assert resp["askUserResult"]["immediate"]["text"] == "what color?"
+        assert resp.get("status", "OK") == "OK"
+        assert resp["askUserResult"]["text"] == "what color?"
 
     def test_with_choices(self, cli_binary, server_addr):
         stdout, _, ec = run_cli(
@@ -162,7 +148,7 @@ class TestE2EAskUser:
         )
         assert ec == 0
         resp = json.loads(stdout)
-        assert resp["askUserResult"]["immediate"]["text"] == "pick one"
+        assert resp["askUserResult"]["text"] == "pick one"
 
     def test_auto_fills_request_id(self, cli_binary, server_addr):
         stdout, _, ec = run_cli(
@@ -189,62 +175,44 @@ class TestE2EDelegate:
             cli_binary, server_addr,
             "send", json.dumps({
                 "delegate": {
-                    "delegateTo": "IMPLEMENTER",
-                    "task": {"text": "build auth module", "returnFormat": "OUTPUT_PATCH"},
+                    "delegateTo": "implementer",
+                    "task": {"text": "build auth module", "returnFormat": "TEXT"},
                 },
             }),
         )
         assert ec == 0
         resp = json.loads(stdout)
-        assert resp["status"] == "OK"
-        delegation = resp["delegateResult"]["delegation"]
-        assert delegation["summary"] == "build auth module"
-        assert delegation["status"] == "DELEGATION_OK"
-        assert delegation["outputFormat"] == "OUTPUT_PATCH"
-
-    def test_applied_policy_in_meta(self, cli_binary, server_addr):
-        stdout, _, ec = run_cli(
-            cli_binary, server_addr,
-            "send", '{"delegate":{"delegateTo":"IMPLEMENTER","task":{"text":"x"}}}',
-        )
-        assert ec == 0
-        resp = json.loads(stdout)
-        meta = resp["meta"]
-        assert meta["subAgentInstanceId"] == "sub-agent-1"
-        policy = meta["appliedPolicy"]
-        assert policy["maxTokens"] == 4096
-        assert policy["timeoutSeconds"] == 60
-        assert policy["depth"] == 1
-        assert policy["depthLimit"] == 3
+        assert resp.get("status", "OK") == "OK"
+        result = resp["delegateResult"]
+        assert result["summary"] == "build auth module"
 
     def test_with_trace(self, cli_binary, server_addr):
         stdout, _, ec = run_cli(
             cli_binary, server_addr,
             "send", json.dumps({
                 "delegate": {
-                    "delegateTo": "REVIEWER",
+                    "delegateTo": "reviewer",
                     "task": {"text": "review PR"},
                 },
                 "trace": {
-                    "worktreeId": "wt-123",
+                    "runId": "run-123",
                     "agentInstanceId": "agent-abc",
-                    "role": "PLANNER",
                 },
             }),
         )
         assert ec == 0
         resp = json.loads(stdout)
-        assert resp["status"] == "OK"
+        assert resp.get("status", "OK") == "OK"
 
     def test_with_env_trace(self, cli_binary, server_addr):
         """Trace fields from env vars should be used when not in JSON."""
         stdout, _, ec = run_cli(
             cli_binary, server_addr,
-            "send", '{"delegate":{"delegateTo":"FIXER","task":{"text":"fix bug"}}}',
+            "send", '{"delegate":{"delegateTo":"fixer","task":{"text":"fix bug"}}}',
             env_extra={
                 "DENDEN_AGENT_ID": "env-agent-1",
                 "DENDEN_PARENT_AGENT_ID": "env-parent-1",
-                "DENDEN_WORKTREE_ID": "env-wt-1",
+                "DENDEN_RUN_ID": "env-run-1",
             },
         )
         assert ec == 0
@@ -254,7 +222,7 @@ class TestE2EDenied:
     def test_denied_response(self, cli_binary, deny_server_addr):
         stdout, _, ec = run_cli(
             cli_binary, deny_server_addr,
-            "send", '{"delegate":{"delegateTo":"IMPLEMENTER","task":{"text":"x"}}}',
+            "send", '{"delegate":{"delegateTo":"implementer","task":{"text":"x"}}}',
         )
         assert ec == 1
         resp = json.loads(stdout)
@@ -269,7 +237,7 @@ class TestE2EDenied:
         )
         assert ec == 0
         resp = json.loads(stdout)
-        assert resp["status"] == "OK"
+        assert resp.get("status", "OK") == "OK"
 
 
 class TestE2EStatus:

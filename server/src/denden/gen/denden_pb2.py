@@ -26,7 +26,7 @@ from google.protobuf import timestamp_pb2 as google_dot_protobuf_dot_timestamp__
 from google.protobuf import struct_pb2 as google_dot_protobuf_dot_struct__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0c\x64\x65nden.proto\x12\x06\x64\x65nden\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1cgoogle/protobuf/struct.proto\"\xbd\x01\n\rDenDenRequest\x12\x16\n\x0e\x64\x65nden_version\x18\x01 \x01(\t\x12\x12\n\nrequest_id\x18\x02 \x01(\t\x12\x1c\n\x05trace\x18\x03 \x01(\x0b\x32\r.denden.Trace\x12*\n\x08\x61sk_user\x18\n \x01(\x0b\x32\x16.denden.AskUserPayloadH\x00\x12+\n\x08\x64\x65legate\x18\x0b \x01(\x0b\x32\x17.denden.DelegatePayloadH\x00\x42\t\n\x07payload\"\xc9\x01\n\x05Trace\x12\x13\n\x0bworktree_id\x18\x01 \x01(\t\x12\x19\n\x11\x61gent_instance_id\x18\x02 \x01(\t\x12 \n\x18parent_agent_instance_id\x18\x03 \x01(\t\x12\x1a\n\x04role\x18\x04 \x01(\x0e\x32\x0c.denden.Role\x12.\n\ncreated_at\x18\x05 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\"\n\x1aretry_of_agent_instance_id\x18\x06 \x01(\t\"\xa1\x01\n\x0e\x41skUserPayload\x12\x10\n\x08question\x18\x01 \x01(\t\x12\x0f\n\x07\x63hoices\x18\x02 \x03(\t\x12\x15\n\rdefault_value\x18\x03 \x01(\t\x12\x0b\n\x03why\x18\x04 \x01(\t\x12/\n\x0fresponse_format\x18\x05 \x01(\x0e\x32\x16.denden.ResponseFormat\x12\x17\n\x0ftimeout_seconds\x18\x06 \x01(\r\"P\n\x0f\x44\x65legatePayload\x12!\n\x0b\x64\x65legate_to\x18\x01 \x01(\x0e\x32\x0c.denden.Role\x12\x1a\n\x04task\x18\x02 \x01(\x0b\x32\x0c.denden.Task\"e\n\x04Task\x12\x0c\n\x04text\x18\x01 \x01(\t\x12\"\n\x06inputs\x18\x02 \x01(\x0b\x32\x12.denden.TaskInputs\x12+\n\rreturn_format\x18\x03 \x01(\x0e\x32\x14.denden.OutputFormat\"^\n\nTaskInputs\x12\x15\n\rartifact_refs\x18\x01 \x03(\t\x12\x11\n\trepo_path\x18\x02 \x01(\t\x12&\n\x05\x65xtra\x18\x03 \x01(\x0b\x32\x17.google.protobuf.Struct\"\x9b\x02\n\x0e\x44\x65nDenResponse\x12\x16\n\x0e\x64\x65nden_version\x18\x01 \x01(\t\x12\x12\n\nrequest_id\x18\x02 \x01(\t\x12&\n\x06status\x18\x03 \x01(\x0e\x32\x16.denden.ResponseStatus\x12\"\n\x05\x65rror\x18\x04 \x01(\x0b\x32\x13.denden.ErrorDetail\x12\x30\n\x0f\x61sk_user_result\x18\n \x01(\x0b\x32\x15.denden.AskUserResultH\x00\x12\x31\n\x0f\x64\x65legate_result\x18\x0b \x01(\x0b\x32\x16.denden.DelegateResultH\x00\x12\"\n\x04meta\x18\x0c \x01(\x0b\x32\x14.denden.ResponseMetaB\x08\n\x06result\"?\n\x0b\x45rrorDetail\x12\x0c\n\x04\x63ode\x18\x01 \x01(\t\x12\x0f\n\x07message\x18\x02 \x01(\t\x12\x11\n\tretryable\x18\x03 \x01(\x08\";\n\rAskUserResult\x12*\n\timmediate\x18\x01 \x01(\x0b\x32\x17.denden.ImmediateAnswer\"{\n\x0fImmediateAnswer\x12\x0e\n\x04text\x18\x01 \x01(\tH\x00\x12\'\n\x04json\x18\x02 \x01(\x0b\x32\x17.google.protobuf.StructH\x00\x12$\n\x06source\x18\x03 \x01(\x0e\x32\x14.denden.AnswerSourceB\t\n\x07\x63ontent\"8\n\x0e\x44\x65legateResult\x12&\n\ndelegation\x18\x01 \x01(\x0b\x32\x12.denden.Delegation\"\xc2\x01\n\nDelegation\x12+\n\routput_format\x18\x01 \x01(\x0e\x32\x14.denden.OutputFormat\x12\'\n\x06output\x18\x02 \x01(\x0b\x32\x17.google.protobuf.Struct\x12\x0f\n\x07summary\x18\x03 \x01(\t\x12#\n\tartifacts\x18\x04 \x03(\x0b\x32\x10.denden.Artifact\x12(\n\x06status\x18\x05 \x01(\x0e\x32\x18.denden.DelegationStatus\"\x92\x01\n\x08\x41rtifact\x12\"\n\x04kind\x18\x01 \x01(\x0e\x32\x14.denden.ArtifactKind\x12\x0b\n\x03ref\x18\x02 \x01(\t\x12(\n\x04meta\x18\x03 \x03(\x0b\x32\x1a.denden.Artifact.MetaEntry\x1a+\n\tMetaEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\x92\x01\n\x0cResponseMeta\x12\x1e\n\x16orchestrator_action_id\x18\x01 \x01(\t\x12\x14\n\x0cpolicy_flags\x18\x02 \x03(\t\x12\x1d\n\x15sub_agent_instance_id\x18\x03 \x01(\t\x12-\n\x0e\x61pplied_policy\x18\x04 \x01(\x0b\x32\x15.denden.AppliedPolicy\"w\n\rAppliedPolicy\x12\x12\n\nmax_tokens\x18\x01 \x01(\r\x12\x17\n\x0ftimeout_seconds\x18\x02 \x01(\r\x12\x15\n\rtools_allowed\x18\x03 \x03(\t\x12\r\n\x05\x64\x65pth\x18\x04 \x01(\r\x12\x13\n\x0b\x64\x65pth_limit\x18\x05 \x01(\r\"\x0f\n\rStatusRequest\"?\n\x0eStatusResponse\x12\x16\n\x0euptime_seconds\x18\x01 \x01(\x03\x12\x15\n\ractive_agents\x18\x02 \x01(\x05*a\n\x04Role\x12\x14\n\x10ROLE_UNSPECIFIED\x10\x00\x12\x0b\n\x07PLANNER\x10\x01\x12\x0f\n\x0bIMPLEMENTER\x10\x02\x12\x0c\n\x08REVIEWER\x10\x03\x12\t\n\x05\x46IXER\x10\x04\x12\x0c\n\x08VERIFIER\x10\x05*L\n\x0eResponseFormat\x12\x1f\n\x1bRESPONSE_FORMAT_UNSPECIFIED\x10\x00\x12\x08\n\x04TEXT\x10\x01\x12\x0f\n\x0bJSON_FORMAT\x10\x02*\x8a\x01\n\x0cOutputFormat\x12\x1d\n\x19OUTPUT_FORMAT_UNSPECIFIED\x10\x00\x12\x0f\n\x0bOUTPUT_TEXT\x10\x01\x12\x12\n\x0eOUTPUT_BULLETS\x10\x02\x12\x0f\n\x0bOUTPUT_JSON\x10\x03\x12\x13\n\x0fOUTPUT_DECISION\x10\x04\x12\x10\n\x0cOUTPUT_PATCH\x10\x05*P\n\x0eResponseStatus\x12\x1f\n\x1bRESPONSE_STATUS_UNSPECIFIED\x10\x00\x12\x06\n\x02OK\x10\x01\x12\n\n\x06\x44\x45NIED\x10\x02\x12\t\n\x05\x45RROR\x10\x03*W\n\x0c\x41nswerSource\x12\x1d\n\x19\x41NSWER_SOURCE_UNSPECIFIED\x10\x00\x12\n\n\x06\x43\x41\x43HED\x10\x01\x12\n\n\x06POLICY\x10\x02\x12\x10\n\x0cUSER_HISTORY\x10\x03*^\n\x10\x44\x65legationStatus\x12!\n\x1d\x44\x45LEGATION_STATUS_UNSPECIFIED\x10\x00\x12\x11\n\rDELEGATION_OK\x10\x01\x12\x14\n\x10\x44\x45LEGATION_ERROR\x10\x02*c\n\x0c\x41rtifactKind\x12\x1d\n\x19\x41RTIFACT_KIND_UNSPECIFIED\x10\x00\x12\t\n\x05PATCH\x10\x01\x12\n\n\x06\x43OMMIT\x10\x02\x12\n\n\x06REPORT\x10\x03\x12\x08\n\x04\x46ILE\x10\x04\x12\x07\n\x03URL\x10\x05\x32x\n\x06\x44\x65nden\x12\x35\n\x04Send\x12\x15.denden.DenDenRequest\x1a\x16.denden.DenDenResponse\x12\x37\n\x06Status\x12\x15.denden.StatusRequest\x1a\x16.denden.StatusResponseB+Z)github.com/strawpot/denden/cli/gen/dendenb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0c\x64\x65nden.proto\x12\x06\x64\x65nden\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1cgoogle/protobuf/struct.proto\"\xbd\x01\n\rDenDenRequest\x12\x16\n\x0e\x64\x65nden_version\x18\x01 \x01(\t\x12\x12\n\nrequest_id\x18\x02 \x01(\t\x12\x1c\n\x05trace\x18\x03 \x01(\x0b\x32\r.denden.Trace\x12*\n\x08\x61sk_user\x18\n \x01(\x0b\x32\x16.denden.AskUserPayloadH\x00\x12+\n\x08\x64\x65legate\x18\x0b \x01(\x0b\x32\x17.denden.DelegatePayloadH\x00\x42\t\n\x07payload\"\x84\x01\n\x05Trace\x12\x0e\n\x06run_id\x18\x01 \x01(\t\x12\x19\n\x11\x61gent_instance_id\x18\x02 \x01(\t\x12 \n\x18parent_agent_instance_id\x18\x03 \x01(\t\x12.\n\ncreated_at\x18\x04 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\"\x80\x01\n\x0e\x41skUserPayload\x12\x10\n\x08question\x18\x01 \x01(\t\x12\x0f\n\x07\x63hoices\x18\x02 \x03(\t\x12\x15\n\rdefault_value\x18\x03 \x01(\t\x12\x0b\n\x03why\x18\x04 \x01(\t\x12\'\n\x0fresponse_format\x18\x05 \x01(\x0e\x32\x0e.denden.Format\"B\n\x0f\x44\x65legatePayload\x12\x13\n\x0b\x64\x65legate_to\x18\x01 \x01(\t\x12\x1a\n\x04task\x18\x02 \x01(\x0b\x32\x0c.denden.Task\"z\n\x04Task\x12\x0c\n\x04text\x18\x01 \x01(\t\x12\x15\n\rartifact_refs\x18\x02 \x03(\t\x12&\n\x05\x65xtra\x18\x03 \x01(\x0b\x32\x17.google.protobuf.Struct\x12%\n\rreturn_format\x18\x04 \x01(\x0e\x32\x0e.denden.Format\"\xf7\x01\n\x0e\x44\x65nDenResponse\x12\x16\n\x0e\x64\x65nden_version\x18\x01 \x01(\t\x12\x12\n\nrequest_id\x18\x02 \x01(\t\x12&\n\x06status\x18\x03 \x01(\x0e\x32\x16.denden.ResponseStatus\x12\"\n\x05\x65rror\x18\x04 \x01(\x0b\x32\x13.denden.ErrorDetail\x12\x30\n\x0f\x61sk_user_result\x18\n \x01(\x0b\x32\x15.denden.AskUserResultH\x00\x12\x31\n\x0f\x64\x65legate_result\x18\x0b \x01(\x0b\x32\x16.denden.DelegateResultH\x00\x42\x08\n\x06result\"?\n\x0b\x45rrorDetail\x12\x0c\n\x04\x63ode\x18\x01 \x01(\t\x12\x0f\n\x07message\x18\x02 \x01(\t\x12\x11\n\tretryable\x18\x03 \x01(\x08\"S\n\rAskUserResult\x12\x0e\n\x04text\x18\x01 \x01(\tH\x00\x12\'\n\x04json\x18\x02 \x01(\x0b\x32\x17.google.protobuf.StructH\x00\x42\t\n\x07\x63ontent\"q\n\x0e\x44\x65legateResult\x12%\n\routput_format\x18\x01 \x01(\x0e\x32\x0e.denden.Format\x12\'\n\x06output\x18\x02 \x01(\x0b\x32\x17.google.protobuf.Struct\x12\x0f\n\x07summary\x18\x03 \x01(\t\"\x0f\n\rStatusRequest\"?\n\x0eStatusResponse\x12\x16\n\x0euptime_seconds\x18\x01 \x01(\x03\x12\x15\n\ractive_agents\x18\x02 \x01(\x05*\x1c\n\x06\x46ormat\x12\x08\n\x04TEXT\x10\x00\x12\x08\n\x04JSON\x10\x01*/\n\x0eResponseStatus\x12\x06\n\x02OK\x10\x00\x12\n\n\x06\x44\x45NIED\x10\x01\x12\t\n\x05\x45RROR\x10\x02\x32x\n\x06\x44\x65nden\x12\x35\n\x04Send\x12\x15.denden.DenDenRequest\x1a\x16.denden.DenDenResponse\x12\x37\n\x06Status\x12\x15.denden.StatusRequest\x1a\x16.denden.StatusResponseB+Z)github.com/strawpot/denden/cli/gen/dendenb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -34,58 +34,32 @@ _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'denden_pb2', _globals)
 if not _descriptor._USE_C_DESCRIPTORS:
   _globals['DESCRIPTOR']._loaded_options = None
   _globals['DESCRIPTOR']._serialized_options = b'Z)github.com/strawpot/denden/cli/gen/denden'
-  _globals['_ARTIFACT_METAENTRY']._loaded_options = None
-  _globals['_ARTIFACT_METAENTRY']._serialized_options = b'8\001'
-  _globals['_ROLE']._serialized_start=2221
-  _globals['_ROLE']._serialized_end=2318
-  _globals['_RESPONSEFORMAT']._serialized_start=2320
-  _globals['_RESPONSEFORMAT']._serialized_end=2396
-  _globals['_OUTPUTFORMAT']._serialized_start=2399
-  _globals['_OUTPUTFORMAT']._serialized_end=2537
-  _globals['_RESPONSESTATUS']._serialized_start=2539
-  _globals['_RESPONSESTATUS']._serialized_end=2619
-  _globals['_ANSWERSOURCE']._serialized_start=2621
-  _globals['_ANSWERSOURCE']._serialized_end=2708
-  _globals['_DELEGATIONSTATUS']._serialized_start=2710
-  _globals['_DELEGATIONSTATUS']._serialized_end=2804
-  _globals['_ARTIFACTKIND']._serialized_start=2806
-  _globals['_ARTIFACTKIND']._serialized_end=2905
+  _globals['_FORMAT']._serialized_start=1334
+  _globals['_FORMAT']._serialized_end=1362
+  _globals['_RESPONSESTATUS']._serialized_start=1364
+  _globals['_RESPONSESTATUS']._serialized_end=1411
   _globals['_DENDENREQUEST']._serialized_start=88
   _globals['_DENDENREQUEST']._serialized_end=277
   _globals['_TRACE']._serialized_start=280
-  _globals['_TRACE']._serialized_end=481
-  _globals['_ASKUSERPAYLOAD']._serialized_start=484
-  _globals['_ASKUSERPAYLOAD']._serialized_end=645
-  _globals['_DELEGATEPAYLOAD']._serialized_start=647
-  _globals['_DELEGATEPAYLOAD']._serialized_end=727
-  _globals['_TASK']._serialized_start=729
-  _globals['_TASK']._serialized_end=830
-  _globals['_TASKINPUTS']._serialized_start=832
-  _globals['_TASKINPUTS']._serialized_end=926
-  _globals['_DENDENRESPONSE']._serialized_start=929
-  _globals['_DENDENRESPONSE']._serialized_end=1212
-  _globals['_ERRORDETAIL']._serialized_start=1214
-  _globals['_ERRORDETAIL']._serialized_end=1277
-  _globals['_ASKUSERRESULT']._serialized_start=1279
-  _globals['_ASKUSERRESULT']._serialized_end=1338
-  _globals['_IMMEDIATEANSWER']._serialized_start=1340
-  _globals['_IMMEDIATEANSWER']._serialized_end=1463
-  _globals['_DELEGATERESULT']._serialized_start=1465
-  _globals['_DELEGATERESULT']._serialized_end=1521
-  _globals['_DELEGATION']._serialized_start=1524
-  _globals['_DELEGATION']._serialized_end=1718
-  _globals['_ARTIFACT']._serialized_start=1721
-  _globals['_ARTIFACT']._serialized_end=1867
-  _globals['_ARTIFACT_METAENTRY']._serialized_start=1824
-  _globals['_ARTIFACT_METAENTRY']._serialized_end=1867
-  _globals['_RESPONSEMETA']._serialized_start=1870
-  _globals['_RESPONSEMETA']._serialized_end=2016
-  _globals['_APPLIEDPOLICY']._serialized_start=2018
-  _globals['_APPLIEDPOLICY']._serialized_end=2137
-  _globals['_STATUSREQUEST']._serialized_start=2139
-  _globals['_STATUSREQUEST']._serialized_end=2154
-  _globals['_STATUSRESPONSE']._serialized_start=2156
-  _globals['_STATUSRESPONSE']._serialized_end=2219
-  _globals['_DENDEN']._serialized_start=2907
-  _globals['_DENDEN']._serialized_end=3027
+  _globals['_TRACE']._serialized_end=412
+  _globals['_ASKUSERPAYLOAD']._serialized_start=415
+  _globals['_ASKUSERPAYLOAD']._serialized_end=543
+  _globals['_DELEGATEPAYLOAD']._serialized_start=545
+  _globals['_DELEGATEPAYLOAD']._serialized_end=611
+  _globals['_TASK']._serialized_start=613
+  _globals['_TASK']._serialized_end=735
+  _globals['_DENDENRESPONSE']._serialized_start=738
+  _globals['_DENDENRESPONSE']._serialized_end=985
+  _globals['_ERRORDETAIL']._serialized_start=987
+  _globals['_ERRORDETAIL']._serialized_end=1050
+  _globals['_ASKUSERRESULT']._serialized_start=1052
+  _globals['_ASKUSERRESULT']._serialized_end=1135
+  _globals['_DELEGATERESULT']._serialized_start=1137
+  _globals['_DELEGATERESULT']._serialized_end=1250
+  _globals['_STATUSREQUEST']._serialized_start=1252
+  _globals['_STATUSREQUEST']._serialized_end=1267
+  _globals['_STATUSRESPONSE']._serialized_start=1269
+  _globals['_STATUSRESPONSE']._serialized_end=1332
+  _globals['_DENDEN']._serialized_start=1413
+  _globals['_DENDEN']._serialized_end=1533
 # @@protoc_insertion_point(module_scope)

@@ -60,10 +60,10 @@ denden-server --verbose
 # Delegate to a sub-agent
 ./cli/denden send '{
   "delegate": {
-    "delegateTo": "IMPLEMENTER",
+    "delegateTo": "implementer",
     "task": {
       "text": "implement auth module",
-      "returnFormat": "OUTPUT_PATCH"
+      "returnFormat": "TEXT"
     }
   }
 }'
@@ -78,7 +78,7 @@ The CLI auto-fills `request_id`, `denden_version`, `trace.created_at`, and trace
 | `DENDEN_ADDR` | `127.0.0.1:9700` | Server address |
 | `DENDEN_AGENT_ID` | | Agent instance ID (set by orchestrator) |
 | `DENDEN_PARENT_AGENT_ID` | | Parent agent instance ID |
-| `DENDEN_WORKTREE_ID` | | Worktree ID |
+| `DENDEN_RUN_ID` | | Run ID |
 | `DENDEN_TIMEOUT` | `30s` | CLI request timeout |
 
 ## Protocol
@@ -101,7 +101,7 @@ Requires `protoc`, `protoc-gen-go`, `protoc-gen-go-grpc`, and `grpcio-tools`.
 ## Server as a library
 
 ```python
-from denden import DenDenServer, ok_response, denied_response
+from denden import DenDenServer, ok_response
 from denden.gen import denden_pb2
 
 server = DenDenServer(addr="127.0.0.1:9700")
@@ -110,9 +110,7 @@ def handle_ask_user(request):
     answer = input(request.ask_user.question + " ")
     return ok_response(
         request.request_id,
-        ask_user_result=denden_pb2.AskUserResult(
-            immediate=denden_pb2.ImmediateAnswer(text=answer),
-        ),
+        ask_user_result=denden_pb2.AskUserResult(text=answer),
     )
 
 server.on_ask_user(handle_ask_user)

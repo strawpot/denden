@@ -35,23 +35,10 @@ message DenDenRequest {
 }
 
 message Trace {
-  string worktree_id = 1;
+  string run_id = 1;
   string agent_instance_id = 2;
   string parent_agent_instance_id = 3;
-  Role role = 4;
-  google.protobuf.Timestamp created_at = 5;
-
-  // Optional span linkage for retries.
-  string retry_of_agent_instance_id = 6;
-}
-
-enum Role {
-  ROLE_UNSPECIFIED = 0;
-  PLANNER = 1;
-  IMPLEMENTER = 2;
-  REVIEWER = 3;
-  FIXER = 4;
-  VERIFIER = 5;
+  google.protobuf.Timestamp created_at = 4;
 }
 
 // ---------------------------------------------------------------------------
@@ -63,16 +50,7 @@ message AskUserPayload {
   repeated string choices = 2;
   string default_value = 3;
   string why = 4;
-  ResponseFormat response_format = 5;
-
-  // Optional timeout for blocking user interaction.
-  uint32 timeout_seconds = 6;
-}
-
-enum ResponseFormat {
-  RESPONSE_FORMAT_UNSPECIFIED = 0;
-  TEXT = 1;
-  JSON_FORMAT = 2;
+  Format response_format = 5;
 }
 
 // ---------------------------------------------------------------------------
@@ -80,29 +58,20 @@ enum ResponseFormat {
 // ---------------------------------------------------------------------------
 
 message DelegatePayload {
-  Role delegate_to = 1;
+  string delegate_to = 1;
   Task task = 2;
 }
 
 message Task {
   string text = 1;
-  TaskInputs inputs = 2;
-  OutputFormat return_format = 3;
-}
-
-message TaskInputs {
-  repeated string artifact_refs = 1;
-  string repo_path = 2;
+  repeated string artifact_refs = 2;
   google.protobuf.Struct extra = 3;
+  Format return_format = 4;
 }
 
-enum OutputFormat {
-  OUTPUT_FORMAT_UNSPECIFIED = 0;
-  OUTPUT_TEXT = 1;
-  OUTPUT_BULLETS = 2;
-  OUTPUT_JSON = 3;
-  OUTPUT_DECISION = 4;
-  OUTPUT_PATCH = 5;
+enum Format {
+  TEXT = 0;
+  JSON = 1;
 }
 
 // ---------------------------------------------------------------------------
@@ -119,15 +88,12 @@ message DenDenResponse {
     AskUserResult ask_user_result = 10;
     DelegateResult delegate_result = 11;
   }
-
-  ResponseMeta meta = 12;
 }
 
 enum ResponseStatus {
-  RESPONSE_STATUS_UNSPECIFIED = 0;
-  OK = 1;
-  DENIED = 2;
-  ERROR = 3;
+  OK = 0;
+  DENIED = 1;
+  ERROR = 2;
 }
 
 message ErrorDetail {
@@ -137,26 +103,14 @@ message ErrorDetail {
 }
 
 // ---------------------------------------------------------------------------
-// ask_user result (always immediate in synchronous mode)
+// ask_user result
 // ---------------------------------------------------------------------------
 
 message AskUserResult {
-  ImmediateAnswer immediate = 1;
-}
-
-message ImmediateAnswer {
   oneof content {
     string text = 1;
     google.protobuf.Struct json = 2;
   }
-  AnswerSource source = 3;
-}
-
-enum AnswerSource {
-  ANSWER_SOURCE_UNSPECIFIED = 0;
-  CACHED = 1;
-  POLICY = 2;
-  USER_HISTORY = 3;
 }
 
 // ---------------------------------------------------------------------------
@@ -164,59 +118,9 @@ enum AnswerSource {
 // ---------------------------------------------------------------------------
 
 message DelegateResult {
-  Delegation delegation = 1;
-}
-
-message Delegation {
-  OutputFormat output_format = 1;
+  Format output_format = 1;
   google.protobuf.Struct output = 2;
   string summary = 3;
-  repeated Artifact artifacts = 4;
-  DelegationStatus status = 5;
-}
-
-enum DelegationStatus {
-  DELEGATION_STATUS_UNSPECIFIED = 0;
-  DELEGATION_OK = 1;
-  DELEGATION_ERROR = 2;
-}
-
-message Artifact {
-  ArtifactKind kind = 1;
-  string ref = 2;
-  map<string, string> meta = 3;
-}
-
-enum ArtifactKind {
-  ARTIFACT_KIND_UNSPECIFIED = 0;
-  PATCH = 1;
-  COMMIT = 2;
-  REPORT = 3;
-  FILE = 4;
-  URL = 5;
-}
-
-// ---------------------------------------------------------------------------
-// Response metadata
-// ---------------------------------------------------------------------------
-
-message ResponseMeta {
-  string orchestrator_action_id = 1;
-  repeated string policy_flags = 2;
-
-  // If delegation occurred, this is the spawned sub-agent instance ID.
-  string sub_agent_instance_id = 3;
-
-  // Observability only — constraints applied by orchestrator.
-  AppliedPolicy applied_policy = 4;
-}
-
-message AppliedPolicy {
-  uint32 max_tokens = 1;
-  uint32 timeout_seconds = 2;
-  repeated string tools_allowed = 3;
-  uint32 depth = 4;
-  uint32 depth_limit = 5;
 }
 
 // ---------------------------------------------------------------------------
