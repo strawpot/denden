@@ -17,8 +17,9 @@ proto-python:
 		-I proto \
 		proto/denden.proto
 	@# Fix generated imports to work inside the denden.gen package
-	sed -i '' 's/^import denden_pb2/from denden.gen import denden_pb2/' \
-		server/src/denden/gen/denden_pb2_grpc.py
+	sed 's/^import denden_pb2/from denden.gen import denden_pb2/' \
+		server/src/denden/gen/denden_pb2_grpc.py > server/src/denden/gen/denden_pb2_grpc.py.tmp && \
+		mv server/src/denden/gen/denden_pb2_grpc.py.tmp server/src/denden/gen/denden_pb2_grpc.py
 
 test: test-go test-python
 

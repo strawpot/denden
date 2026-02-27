@@ -1,0 +1,44 @@
+name: E2E CI
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "cli/**"
+      - "server/**"
+      - "proto/**"
+  pull_request:
+    paths:
+      - "cli/**"
+      - "server/**"
+      - "proto/**"
+
+jobs:
+  test:
+    name: E2E tests (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: cli/go.mod
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Build Go CLI
+        run: go build -o denden .
+        working-directory: cli
+
+      - name: Install Python server
+        run: pip install -e '.[dev]'
+        working-directory: server
+
+      - name: Run E2E tests
+        run: python -m pytest tests/test_e2e.py -v
+        working-directory: server

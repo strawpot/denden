@@ -1,4 +1,10 @@
-# denden
+# Den Den
+
+<p align="center">
+  <a href="https://github.com/strawpot/denden/actions/workflows/ci-go.yml?branch=main"><img src="https://img.shields.io/github/actions/workflow/status/strawpot/denden/ci-go.yml?branch=main&label=Go&style=for-the-badge" alt="Go CI"></a>
+  <a href="https://github.com/strawpot/denden/actions/workflows/ci-python.yml?branch=main"><img src="https://img.shields.io/github/actions/workflow/status/strawpot/denden/ci-python.yml?branch=main&label=Python&style=for-the-badge" alt="Python CI"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge" alt="MIT License"></a>
+</p>
 
 Agent-to-orchestrator communication layer. A gRPC transport where agents call back to the orchestrator via the `denden` CLI.
 
@@ -128,6 +134,3 @@ denden-server --load-module my_custom_module
 
 Modules must expose a `module` attribute or `create_module()` function returning a `denden.Module` subclass.
 
-## License
-
-MIT
