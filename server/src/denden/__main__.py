@@ -50,6 +50,8 @@ def main() -> None:
             raise ValueError(
                 f"module {mod_path} must expose 'module' or 'create_module'"
             )
+        for method_name, handler in instance.methods().items():
+            server._servicer.set_handler(method_name, handler)
         instance.on_load(server)
 
     server.run()

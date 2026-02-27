@@ -119,8 +119,15 @@ def handle_ask_user(request):
         ask_user_result=denden_pb2.AskUserResult(text=answer),
     )
 
+def handle_delegate(request):
+    # ... run the delegated task ...
+    return ok_response(
+        request.request_id,
+        delegate_result=denden_pb2.DelegateResult(summary="done"),
+    )
+
 server.on_ask_user(handle_ask_user)
-server.on_delegate(my_delegate_handler)
+server.on_delegate(handle_delegate)
 server.run()
 ```
 

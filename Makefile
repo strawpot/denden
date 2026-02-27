@@ -1,4 +1,4 @@
-.PHONY: proto proto-go proto-python test test-go test-python clean
+.PHONY: proto proto-go proto-python test test-go test-python test-e2e clean
 
 proto: proto-go proto-python
 
@@ -27,7 +27,10 @@ test-go:
 	cd cli && go test -v -timeout 60s ./...
 
 test-python:
-	cd server && python -m pytest tests/ -v
+	cd server && python -m pytest tests/test_server.py -v
+
+test-e2e: test-go
+	cd server && python -m pytest tests/test_e2e.py -v
 
 clean:
 	rm -f cli/gen/denden/*.go

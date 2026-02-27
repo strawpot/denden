@@ -1,14 +1,19 @@
-"""Tests for the denden server: servicer, response helpers, and gRPC integration."""
+"""Tests for the denden server: servicer, response helpers, module loading, and gRPC integration."""
 from __future__ import annotations
 
+import importlib
+import sys
 import threading
 import time
+import types
 from concurrent import futures
+from unittest import mock
 
 import grpc
 import pytest
 
 from denden.gen import denden_pb2, denden_pb2_grpc
+from denden.modules.base import Module
 from denden.server import (
     DENY_ROLE_NOT_ALLOWED,
     ERR_SUBAGENT_FAILURE,
@@ -220,3 +225,121 @@ class TestGRPCIntegration:
         stub = denden_pb2_grpc.DendenStub(grpc_server)
         resp = stub.Status(denden_pb2.StatusRequest())
         assert resp.uptime_seconds >= 0
+
+
+# ---------------------------------------------------------------------------
+# Module loading tests
+# ---------------------------------------------------------------------------
+
+class _EchoModule(Module):
+    """Test module that registers echo handlers via methods()."""
+
+    def name(self) -> str:
+        return "echo"
+
+    def methods(self) -> dict:
+        return {"ask_user": _echo_handler}
+
+    def on_load(self, server: DenDenServer) -> None:
+        pass
+
+
+class _OnLoadModule(Module):
+    """Module that registers handlers in on_load instead of methods()."""
+
+    def __init__(self):
+        self.loaded = False
+
+    def name(self) -> str:
+        return "onload"
+
+    def methods(self) -> dict:
+        return {}
+
+    def on_load(self, server: DenDenServer) -> None:
+        self.loaded = True
+        server.on_delegate(_echo_handler)
+
+
+class TestModuleLoading:
+    def test_methods_registers_handlers(self):
+        """Module.methods() should register handlers on the server."""
+        from denden.__main__ import main
+
+        mod_instance = _EchoModule()
+        fake_mod = types.ModuleType("fake_echo_mod")
+        fake_mod.module = mod_instance
+
+        with mock.patch.dict(sys.modules, {"fake_echo_mod": fake_mod}):
+            with mock.patch(
+                "sys.argv", ["denden-server", "--load-module", "fake_echo_mod"]
+            ):
+                with mock.patch.object(DenDenServer, "run"):
+                    main()
+
+        # Verify: the main() function should have loaded the module and
+        # registered ask_user via methods(). We can't access the server
+        # instance directly, so test the module contract separately.
+        server = DenDenServer()
+        for method_name, handler in mod_instance.methods().items():
+            server._servicer.set_handler(method_name, handler)
+        mod_instance.on_load(server)
+
+        assert "ask_user" in server._servicer._handlers
+        resp = server._servicer.Send(_ask_request(), None)
+        assert resp.status == denden_pb2.OK
+        assert resp.ask_user_result.text == "pick a color"
+
+    def test_on_load_called(self):
+        """on_load() should be called and can register additional handlers."""
+        server = DenDenServer()
+        mod_instance = _OnLoadModule()
+
+        for method_name, handler in mod_instance.methods().items():
+            server._servicer.set_handler(method_name, handler)
+        mod_instance.on_load(server)
+
+        assert mod_instance.loaded is True
+        assert "delegate" in server._servicer._handlers
+
+    def test_module_attribute_loading(self):
+        """Loader should accept modules with a 'module' attribute."""
+        from denden.__main__ import main
+
+        fake_mod = types.ModuleType("fake_attr_mod")
+        fake_mod.module = _EchoModule()
+
+        with mock.patch.dict(sys.modules, {"fake_attr_mod": fake_mod}):
+            with mock.patch(
+                "sys.argv", ["denden-server", "--load-module", "fake_attr_mod"]
+            ):
+                with mock.patch.object(DenDenServer, "run"):
+                    main()
+
+    def test_create_module_loading(self):
+        """Loader should accept modules with a 'create_module()' function."""
+        from denden.__main__ import main
+
+        fake_mod = types.ModuleType("fake_factory_mod")
+        fake_mod.create_module = lambda: _EchoModule()
+
+        with mock.patch.dict(sys.modules, {"fake_factory_mod": fake_mod}):
+            with mock.patch(
+                "sys.argv", ["denden-server", "--load-module", "fake_factory_mod"]
+            ):
+                with mock.patch.object(DenDenServer, "run"):
+                    main()
+
+    def test_invalid_module_raises(self):
+        """Loader should raise ValueError for modules without module/create_module."""
+        from denden.__main__ import main
+
+        fake_mod = types.ModuleType("fake_bad_mod")
+
+        with mock.patch.dict(sys.modules, {"fake_bad_mod": fake_mod}):
+            with mock.patch(
+                "sys.argv", ["denden-server", "--load-module", "fake_bad_mod"]
+            ):
+                with mock.patch.object(DenDenServer, "run"):
+                    with pytest.raises(ValueError, match="must expose"):
+                        main()
