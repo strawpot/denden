@@ -1,3 +1,5 @@
+version: 2
+
 builds:
   - dir: cli
     binary: denden
@@ -13,7 +15,7 @@ builds:
       - -X main.version={{.Version}}
 
 archives:
-  - format: binary
+  - formats: [binary]
     name_template: "denden-{{ .Os }}-{{ .Arch }}{{ if eq .Os \"windows\" }}.exe{{ end }}"
 
 release:
