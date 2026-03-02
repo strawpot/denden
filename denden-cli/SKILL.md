@@ -1,11 +1,34 @@
 ---
 name: denden-cli
 description: "Use the denden Go CLI to communicate with the orchestrator via gRPC"
+metadata:
+  strawpot:
+    tools:
+      denden:
+        description: DenDen CLI for orchestrator communication
+        install:
+          macos: curl -fsSL https://raw.githubusercontent.com/strawpot/denden/main/install.sh | sh
+          linux: curl -fsSL https://raw.githubusercontent.com/strawpot/denden/main/install.sh | sh
+          windows: curl -fsSL https://raw.githubusercontent.com/strawpot/denden/main/install.sh | sh
 ---
 
 # DenDen CLI
 
 Use `denden send <json>` to ask the user a question or delegate work to a sub-agent. The payload must contain exactly one of `askUser` or `delegate`.
+
+## Installation
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/strawpot/denden/main/install.sh | sh
+```
+
+Or set a custom install directory:
+
+```bash
+INSTALL_DIR=./bin curl -fsSL https://raw.githubusercontent.com/strawpot/denden/main/install.sh | sh
+```
+
+Supports Linux, macOS, and Windows (via MSYS/Git Bash). Binaries are available for x86_64 and ARM64.
 
 ## Ask the user a question
 
