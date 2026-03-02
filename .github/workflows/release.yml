@@ -1,22 +1,30 @@
-name: Release Go
+name: Release
 
 on:
   push:
     branches: [main]
     paths:
       - "cli/**"
+      - "server/**"
+      - "proto/**"
       - "denden-cli/SKILL.md"
       - "install.sh"
       - ".goreleaser.yml"
   workflow_dispatch:
+    inputs:
+      version:
+        description: "Version override (e.g. 0.2.0). Leave empty for auto patch bump."
+        required: false
 
 permissions:
+  id-token: write
   contents: write
 
 jobs:
   release:
     name: Build and release
     runs-on: ubuntu-latest
+    environment: pypi
     steps:
       - uses: actions/checkout@v4
         with:
@@ -26,17 +34,29 @@ jobs:
         with:
           go-version-file: cli/go.mod
 
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
       - name: Determine version
         id: version
         run: |
-          LATEST=$(git tag --list 'v*' --sort=-v:refname | head -n1)
-          if [ -z "$LATEST" ]; then
-            echo "tag=v0.1.0" >> "$GITHUB_OUTPUT"
+          if [ -n "${{ inputs.version }}" ]; then
+            echo "version=${{ inputs.version }}" >> "$GITHUB_OUTPUT"
+            echo "tag=v${{ inputs.version }}" >> "$GITHUB_OUTPUT"
           else
-            MAJOR=$(echo "$LATEST" | cut -d. -f1)
-            MINOR=$(echo "$LATEST" | cut -d. -f2)
-            PATCH=$(echo "$LATEST" | cut -d. -f3)
-            echo "tag=${MAJOR}.${MINOR}.$((PATCH + 1))" >> "$GITHUB_OUTPUT"
+            LATEST=$(git tag --list 'v*' --sort=-v:refname | head -n1)
+            if [ -z "$LATEST" ]; then
+              echo "version=0.1.0" >> "$GITHUB_OUTPUT"
+              echo "tag=v0.1.0" >> "$GITHUB_OUTPUT"
+            else
+              MAJOR=$(echo "$LATEST" | sed 's/^v//' | cut -d. -f1)
+              MINOR=$(echo "$LATEST" | sed 's/^v//' | cut -d. -f2)
+              PATCH=$(echo "$LATEST" | sed 's/^v//' | cut -d. -f3)
+              NEW_PATCH=$((PATCH + 1))
+              echo "version=${MAJOR}.${MINOR}.${NEW_PATCH}" >> "$GITHUB_OUTPUT"
+              echo "tag=v${MAJOR}.${MINOR}.${NEW_PATCH}" >> "$GITHUB_OUTPUT"
+            fi
           fi
 
       - name: Create and push tag
@@ -51,3 +71,19 @@ jobs:
           args: release --clean
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Update version in pyproject.toml
+        working-directory: server
+        run: |
+          sed -i "s/^version = .*/version = \"${{ steps.version.outputs.version }}\"/" pyproject.toml
+
+      - name: Build Python package
+        working-directory: server
+        run: |
+          pip install build
+          python -m build
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: server/dist/
