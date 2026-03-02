@@ -6,6 +6,8 @@ on:
     paths:
       - "cli/**"
       - "denden-cli/SKILL.md"
+      - "install.sh"
+      - ".goreleaser.yml"
   workflow_dispatch:
 
 permissions:
@@ -37,23 +39,15 @@ jobs:
             echo "tag=${MAJOR}.${MINOR}.$((PATCH + 1))" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Cross-compile CLI
-        working-directory: cli
+      - name: Create and push tag
         run: |
-          for pair in linux/amd64 linux/arm64 darwin/amd64 darwin/arm64 windows/amd64 windows/arm64; do
-            OS="${pair%%/*}"
-            ARCH="${pair##*/}"
-            EXT=""
-            if [ "$OS" = "windows" ]; then EXT=".exe"; fi
-            GOOS=$OS GOARCH=$ARCH go build -o "../dist/denden-${OS}-${ARCH}${EXT}" .
-          done
+          git tag "${{ steps.version.outputs.tag }}"
+          git push origin "${{ steps.version.outputs.tag }}"
 
-      - name: Create release
+      - name: Run GoReleaser
+        uses: goreleaser/goreleaser-action@v7
+        with:
+          version: "~> v2"
+          args: release --clean
         env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          gh release create "${{ steps.version.outputs.tag }}" \
-            --title "${{ steps.version.outputs.tag }}" \
-            --generate-notes \
-            dist/denden-* \
-            denden-cli/SKILL.md
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

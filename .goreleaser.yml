@@ -1,0 +1,22 @@
+builds:
+  - dir: cli
+    binary: denden
+    goos:
+      - linux
+      - darwin
+      - windows
+    goarch:
+      - amd64
+      - arm64
+    ldflags:
+      - -s -w
+      - -X main.version={{.Version}}
+
+archives:
+  - format: binary
+    name_template: "denden-{{ .Os }}-{{ .Arch }}{{ if eq .Os \"windows\" }}.exe{{ end }}"
+
+release:
+  extra_files:
+    - glob: denden-cli/SKILL.md
+    - glob: install.sh

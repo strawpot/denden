@@ -16,7 +16,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-const version = "1.0"
+var version = "dev"
 
 func main() {
 	if len(os.Args) < 2 {
