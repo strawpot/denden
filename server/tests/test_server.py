@@ -178,6 +178,40 @@ class TestDenDenServer:
         server.on_delegate(_echo_handler)
         assert "delegate" in server._servicer._handlers
 
+    def test_start_binds_and_sets_bound_addr(self):
+        """start() with port 0 assigns a real port and sets bound_addr."""
+        server = DenDenServer(addr="127.0.0.1:0")
+        server.on_ask_user(_echo_handler)
+        try:
+            server.start()
+            assert server.bound_addr.startswith("127.0.0.1:")
+            port = int(server.bound_addr.rsplit(":", 1)[1])
+            assert port > 0
+        finally:
+            server.stop(grace=0)
+
+    def test_bound_addr_before_start_raises(self):
+        """Accessing bound_addr before start() raises RuntimeError."""
+        server = DenDenServer()
+        with pytest.raises(RuntimeError, match="not started"):
+            _ = server.bound_addr
+
+    def test_stop_method(self):
+        """stop() gracefully shuts down the server."""
+        server = DenDenServer(addr="127.0.0.1:0")
+        server.start()
+        server.stop(grace=0)
+
+    def test_run_backward_compat(self):
+        """run() in a thread still works and bound_addr is accessible."""
+        server = DenDenServer(addr="127.0.0.1:0")
+        server.on_ask_user(_echo_handler)
+        t = threading.Thread(target=server.run, daemon=True)
+        t.start()
+        time.sleep(0.3)
+        assert server.bound_addr.startswith("127.0.0.1:")
+        server.stop(grace=0)
+
 
 # ---------------------------------------------------------------------------
 # gRPC integration tests (real transport)

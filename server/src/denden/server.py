@@ -148,11 +148,21 @@ def error_response(
 class DenDenServer:
     """gRPC transport server for the DenDen protocol.
 
-    Usage:
+    Usage (standalone)::
+
         server = DenDenServer(addr="127.0.0.1:9700")
         server.on_ask_user(my_ask_handler)
         server.on_delegate(my_delegate_handler)
-        server.run()
+        server.run()  # blocks
+
+    Usage (embedded)::
+
+        server = DenDenServer(addr="127.0.0.1:0")
+        server.on_delegate(my_handler)
+        server.start()  # non-blocking
+        print(server.bound_addr)  # actual address
+        ...
+        server.stop()
     """
 
     def __init__(
@@ -164,6 +174,7 @@ class DenDenServer:
         self.max_workers = max_workers
         self._servicer = DendenServicer()
         self._server: grpc.Server | None = None
+        self._bound_addr: str | None = None
 
     def on_ask_user(self, handler: RequestHandler) -> None:
         """Register a handler for ask_user requests."""
@@ -173,22 +184,63 @@ class DenDenServer:
         """Register a handler for delegate requests."""
         self._servicer.set_handler("delegate", handler)
 
-    def run(self) -> None:
-        """Start the gRPC server and block until interrupted."""
+    @property
+    def bound_addr(self) -> str:
+        """Actual ``host:port`` the server is listening on.
+
+        Only valid after :meth:`start` or :meth:`run` has been called.
+        """
+        if self._bound_addr is None:
+            raise RuntimeError("server not started")
+        return self._bound_addr
+
+    def start(self) -> None:
+        """Create and start the gRPC server (non-blocking).
+
+        After this returns, the server is accepting connections and
+        :attr:`bound_addr` reflects the actual bound address (which may
+        differ from *addr* when port 0 was requested).
+        """
         self._server = grpc.server(
             futures.ThreadPoolExecutor(max_workers=self.max_workers)
         )
         denden_pb2_grpc.add_DendenServicer_to_server(self._servicer, self._server)
-        self._server.add_insecure_port(self.addr)
-
+        port = self._server.add_insecure_port(self.addr)
+        if port == 0:
+            raise RuntimeError(f"failed to bind to {self.addr}")
+        host = self.addr.rsplit(":", 1)[0]
+        self._bound_addr = f"{host}:{port}"
         self._server.start()
-        logger.info("denden server listening on %s", self.addr)
+        logger.info("denden server listening on %s", self._bound_addr)
+
+    def stop(self, grace: float | None = 5) -> None:
+        """Stop the gRPC server gracefully."""
+        if self._server is not None:
+            self._server.stop(grace=grace)
+
+    def wait_for_termination(self, timeout: float | None = None) -> bool:
+        """Block until the server terminates.
+
+        Returns ``True`` if the server stopped within *timeout*,
+        ``False`` if the timeout expired.
+        """
+        if self._server is not None:
+            return self._server.wait_for_termination(timeout=timeout)
+        return True
+
+    def run(self) -> None:
+        """Start the gRPC server and block until interrupted.
+
+        Equivalent to :meth:`start` followed by :meth:`wait_for_termination`
+        with signal handlers for standalone CLI usage.
+        """
+        self.start()
 
         def _shutdown(signum, frame):
             logger.info("shutting down...")
-            self._server.stop(grace=5)
+            self.stop(grace=5)
 
         signal.signal(signal.SIGINT, _shutdown)
         signal.signal(signal.SIGTERM, _shutdown)
 
-        self._server.wait_for_termination()
+        self.wait_for_termination()
