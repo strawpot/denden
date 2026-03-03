@@ -19,6 +19,6 @@ archives:
     name_template: "denden-{{ .Os }}-{{ .Arch }}{{ if eq .Os \"windows\" }}.exe{{ end }}"
 
 release:
-  extra_files:
-    - glob: denden-cli/SKILL.md
-    - glob: install.sh
+  github:
+    owner: strawpot
+    name: denden

@@ -7,8 +7,7 @@ on:
       - "cli/**"
       - "server/**"
       - "proto/**"
-      - "denden-cli/SKILL.md"
-      - "install.sh"
+      - "denden/**"
       - ".goreleaser.yml"
   workflow_dispatch:
     inputs:
