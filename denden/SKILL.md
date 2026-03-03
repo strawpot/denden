@@ -1,6 +1,15 @@
 ---
 name: denden-cli
 description: "Use the denden Go CLI to communicate with the orchestrator via gRPC"
+metadata:
+  strawpot:
+    bin:
+      macos: denden
+      linux: denden
+      windows: denden.exe
+    install:
+      macos: curl -fsSL https://raw.githubusercontent.com/strawpot/denden/main/denden/install.sh | sh
+      linux: curl -fsSL https://raw.githubusercontent.com/strawpot/denden/main/denden/install.sh | sh
 ---
 
 # DenDen CLI
