@@ -1,5 +1,5 @@
 ---
-name: denden-cli
+name: denden
 description: "Use the denden Go CLI to communicate with the orchestrator via gRPC"
 metadata:
   strawpot:
