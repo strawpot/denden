@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"math"
 	"os"
 	"time"
 
@@ -50,7 +51,7 @@ environment:
   DENDEN_AGENT_ID          this agent's instance ID (auto-set by orchestrator)
   DENDEN_PARENT_AGENT_ID   parent agent's instance ID
   DENDEN_RUN_ID            run ID
-  DENDEN_TIMEOUT           request timeout e.g. "30s" (default: 30s)`)
+  DENDEN_TIMEOUT           request timeout e.g. "30s" (default: no timeout)`)
 }
 
 // handleSend parses raw JSON, auto-fills envelope fields, sends via gRPC.
@@ -156,16 +157,24 @@ func dial() (*grpc.ClientConn, context.Context, context.CancelFunc) {
 		addr = "127.0.0.1:9700"
 	}
 
-	timeout := 30 * time.Second
+	var ctx context.Context
+	var cancel context.CancelFunc
 	if t := os.Getenv("DENDEN_TIMEOUT"); t != "" {
 		if d, err := time.ParseDuration(t); err == nil {
-			timeout = d
+			ctx, cancel = context.WithTimeout(context.Background(), d)
 		}
 	}
+	if ctx == nil {
+		ctx, cancel = context.WithCancel(context.Background())
+	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), timeout)
-
-	conn, err := grpc.NewClient(addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	conn, err := grpc.NewClient(addr,
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+		grpc.WithDefaultCallOptions(
+			grpc.MaxCallRecvMsgSize(math.MaxInt32),
+			grpc.MaxCallSendMsgSize(math.MaxInt32),
+		),
+	)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "connection failed: %v\n", err)
 		os.Exit(1)

@@ -168,7 +168,7 @@ class DenDenServer:
     def __init__(
         self,
         addr: str = "127.0.0.1:9700",
-        max_workers: int = 10,
+        max_workers: int = 10_000,
     ) -> None:
         self.addr = addr
         self.max_workers = max_workers
@@ -202,7 +202,11 @@ class DenDenServer:
         differ from *addr* when port 0 was requested).
         """
         self._server = grpc.server(
-            futures.ThreadPoolExecutor(max_workers=self.max_workers)
+            futures.ThreadPoolExecutor(max_workers=self.max_workers),
+            options=[
+                ("grpc.max_send_message_length", -1),
+                ("grpc.max_receive_message_length", -1),
+            ],
         )
         denden_pb2_grpc.add_DendenServicer_to_server(self._servicer, self._server)
         port = self._server.add_insecure_port(self.addr)

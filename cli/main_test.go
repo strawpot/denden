@@ -330,5 +330,45 @@ func TestTimestampAutoFill(t *testing.T) {
 	}
 }
 
+func TestNoTimeoutByDefault(t *testing.T) {
+	addr := startTestServer(t)
+
+	// Build the binary.
+	binPath := t.TempDir() + "/denden"
+	build := exec.Command("go", "build", "-o", binPath, ".")
+	build.Dir = "."
+	if out, err := build.CombinedOutput(); err != nil {
+		t.Fatalf("build failed: %v\n%s", err, out)
+	}
+
+	// Run WITHOUT DENDEN_TIMEOUT — should not timeout.
+	cmd := exec.Command(binPath, "send", `{"askUser":{"question":"hi"}}`)
+	env := os.Environ()
+	// Filter out any existing DENDEN_TIMEOUT.
+	filtered := env[:0]
+	for _, e := range env {
+		if !strings.HasPrefix(e, "DENDEN_TIMEOUT=") {
+			filtered = append(filtered, e)
+		}
+	}
+	cmd.Env = append(filtered, "DENDEN_ADDR="+addr)
+
+	var outBuf, errBuf strings.Builder
+	cmd.Stdout = &outBuf
+	cmd.Stderr = &errBuf
+
+	if err := cmd.Run(); err != nil {
+		t.Fatalf("CLI failed without DENDEN_TIMEOUT: %v\nstderr: %s", err, errBuf.String())
+	}
+
+	var resp pb.DenDenResponse
+	if err := protojson.Unmarshal([]byte(outBuf.String()), &resp); err != nil {
+		t.Fatalf("failed to parse response: %v", err)
+	}
+	if resp.Status != pb.ResponseStatus_OK {
+		t.Errorf("expected OK, got %v", resp.Status)
+	}
+}
+
 // Suppress unused import warnings.
 var _ = fmt.Sprintf
