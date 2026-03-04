@@ -190,6 +190,11 @@ class TestDenDenServer:
         finally:
             server.stop(grace=0)
 
+    def test_default_max_workers(self):
+        """Default max_workers should be large enough for deep agent nesting."""
+        server = DenDenServer()
+        assert server.max_workers == 10_000
+
     def test_bound_addr_before_start_raises(self):
         """Accessing bound_addr before start() raises RuntimeError."""
         server = DenDenServer()
@@ -259,6 +264,45 @@ class TestGRPCIntegration:
         stub = denden_pb2_grpc.DendenStub(grpc_server)
         resp = stub.Status(denden_pb2.StatusRequest())
         assert resp.uptime_seconds >= 0
+
+
+# ---------------------------------------------------------------------------
+# Large message tests (verifies no message size limit)
+# ---------------------------------------------------------------------------
+
+@pytest.fixture()
+def large_msg_server():
+    """Start DenDenServer with echo handler, yield a channel with unlimited msg size."""
+    server = DenDenServer(addr="127.0.0.1:0")
+    server.on_ask_user(_echo_handler)
+    server.start()
+
+    channel = grpc.insecure_channel(
+        server.bound_addr,
+        options=[
+            ("grpc.max_send_message_length", -1),
+            ("grpc.max_receive_message_length", -1),
+        ],
+    )
+    yield channel
+
+    channel.close()
+    server.stop(grace=0)
+
+
+class TestLargeMessage:
+    def test_message_exceeding_default_4mb_limit(self, large_msg_server):
+        """A message >4MB (gRPC default limit) should succeed with unlimited config."""
+        large_text = "x" * (5 * 1024 * 1024)  # 5 MB
+        req = denden_pb2.DenDenRequest(
+            denden_version=VERSION,
+            request_id="req-large",
+            ask_user=denden_pb2.AskUserPayload(question=large_text),
+        )
+        stub = denden_pb2_grpc.DendenStub(large_msg_server)
+        resp = stub.Send(req)
+        assert resp.status == denden_pb2.OK
+        assert resp.ask_user_result.text == large_text
 
 
 # ---------------------------------------------------------------------------
