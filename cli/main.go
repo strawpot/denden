@@ -95,8 +95,8 @@ func handleSend() {
 	}
 
 	// Validate that a payload is set (oneof).
-	if req.GetAskUser() == nil && req.GetDelegate() == nil {
-		fmt.Fprintln(os.Stderr, "error: either 'askUser' or 'delegate' payload is required")
+	if req.GetAskUser() == nil && req.GetDelegate() == nil && req.GetRemember() == nil {
+		fmt.Fprintln(os.Stderr, "error: a payload field (askUser, delegate, or remember) is required")
 		os.Exit(1)
 	}
 

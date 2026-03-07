@@ -31,6 +31,7 @@ message DenDenRequest {
   oneof payload {
     AskUserPayload ask_user = 10;
     DelegatePayload delegate = 11;
+    RememberPayload remember = 12;
   }
 }
 
@@ -75,6 +76,16 @@ enum Format {
 }
 
 // ---------------------------------------------------------------------------
+// remember (synchronous; orchestrator routes to memory provider)
+// ---------------------------------------------------------------------------
+
+message RememberPayload {
+  string content = 1;
+  repeated string keywords = 2;
+  string scope = 3;  // "global" | "project" | "role"
+}
+
+// ---------------------------------------------------------------------------
 // Response envelope
 // ---------------------------------------------------------------------------
 
@@ -87,6 +98,7 @@ message DenDenResponse {
   oneof result {
     AskUserResult ask_user_result = 10;
     DelegateResult delegate_result = 11;
+    RememberResult remember_result = 12;
   }
 }
 
@@ -121,6 +133,15 @@ message DelegateResult {
   Format output_format = 1;
   google.protobuf.Struct output = 2;
   string summary = 3;
+}
+
+// ---------------------------------------------------------------------------
+// remember result
+// ---------------------------------------------------------------------------
+
+message RememberResult {
+  string status = 1;    // "accepted" | "duplicate" | "queued"
+  string entry_id = 2;
 }
 
 // ---------------------------------------------------------------------------

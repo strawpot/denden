@@ -28,18 +28,20 @@ DENIED: ResponseStatus
 ERROR: ResponseStatus
 
 class DenDenRequest(_message.Message):
-    __slots__ = ("denden_version", "request_id", "trace", "ask_user", "delegate")
+    __slots__ = ("denden_version", "request_id", "trace", "ask_user", "delegate", "remember")
     DENDEN_VERSION_FIELD_NUMBER: _ClassVar[int]
     REQUEST_ID_FIELD_NUMBER: _ClassVar[int]
     TRACE_FIELD_NUMBER: _ClassVar[int]
     ASK_USER_FIELD_NUMBER: _ClassVar[int]
     DELEGATE_FIELD_NUMBER: _ClassVar[int]
+    REMEMBER_FIELD_NUMBER: _ClassVar[int]
     denden_version: str
     request_id: str
     trace: Trace
     ask_user: AskUserPayload
     delegate: DelegatePayload
-    def __init__(self, denden_version: _Optional[str] = ..., request_id: _Optional[str] = ..., trace: _Optional[_Union[Trace, _Mapping]] = ..., ask_user: _Optional[_Union[AskUserPayload, _Mapping]] = ..., delegate: _Optional[_Union[DelegatePayload, _Mapping]] = ...) -> None: ...
+    remember: RememberPayload
+    def __init__(self, denden_version: _Optional[str] = ..., request_id: _Optional[str] = ..., trace: _Optional[_Union[Trace, _Mapping]] = ..., ask_user: _Optional[_Union[AskUserPayload, _Mapping]] = ..., delegate: _Optional[_Union[DelegatePayload, _Mapping]] = ..., remember: _Optional[_Union[RememberPayload, _Mapping]] = ...) -> None: ...
 
 class Trace(_message.Message):
     __slots__ = ("run_id", "agent_instance_id", "parent_agent_instance_id", "created_at")
@@ -87,21 +89,33 @@ class Task(_message.Message):
     return_format: Format
     def __init__(self, text: _Optional[str] = ..., artifact_refs: _Optional[_Iterable[str]] = ..., extra: _Optional[_Union[_struct_pb2.Struct, _Mapping]] = ..., return_format: _Optional[_Union[Format, str]] = ...) -> None: ...
 
+class RememberPayload(_message.Message):
+    __slots__ = ("content", "keywords", "scope")
+    CONTENT_FIELD_NUMBER: _ClassVar[int]
+    KEYWORDS_FIELD_NUMBER: _ClassVar[int]
+    SCOPE_FIELD_NUMBER: _ClassVar[int]
+    content: str
+    keywords: _containers.RepeatedScalarFieldContainer[str]
+    scope: str
+    def __init__(self, content: _Optional[str] = ..., keywords: _Optional[_Iterable[str]] = ..., scope: _Optional[str] = ...) -> None: ...
+
 class DenDenResponse(_message.Message):
-    __slots__ = ("denden_version", "request_id", "status", "error", "ask_user_result", "delegate_result")
+    __slots__ = ("denden_version", "request_id", "status", "error", "ask_user_result", "delegate_result", "remember_result")
     DENDEN_VERSION_FIELD_NUMBER: _ClassVar[int]
     REQUEST_ID_FIELD_NUMBER: _ClassVar[int]
     STATUS_FIELD_NUMBER: _ClassVar[int]
     ERROR_FIELD_NUMBER: _ClassVar[int]
     ASK_USER_RESULT_FIELD_NUMBER: _ClassVar[int]
     DELEGATE_RESULT_FIELD_NUMBER: _ClassVar[int]
+    REMEMBER_RESULT_FIELD_NUMBER: _ClassVar[int]
     denden_version: str
     request_id: str
     status: ResponseStatus
     error: ErrorDetail
     ask_user_result: AskUserResult
     delegate_result: DelegateResult
-    def __init__(self, denden_version: _Optional[str] = ..., request_id: _Optional[str] = ..., status: _Optional[_Union[ResponseStatus, str]] = ..., error: _Optional[_Union[ErrorDetail, _Mapping]] = ..., ask_user_result: _Optional[_Union[AskUserResult, _Mapping]] = ..., delegate_result: _Optional[_Union[DelegateResult, _Mapping]] = ...) -> None: ...
+    remember_result: RememberResult
+    def __init__(self, denden_version: _Optional[str] = ..., request_id: _Optional[str] = ..., status: _Optional[_Union[ResponseStatus, str]] = ..., error: _Optional[_Union[ErrorDetail, _Mapping]] = ..., ask_user_result: _Optional[_Union[AskUserResult, _Mapping]] = ..., delegate_result: _Optional[_Union[DelegateResult, _Mapping]] = ..., remember_result: _Optional[_Union[RememberResult, _Mapping]] = ...) -> None: ...
 
 class ErrorDetail(_message.Message):
     __slots__ = ("code", "message", "retryable")
@@ -130,6 +144,14 @@ class DelegateResult(_message.Message):
     output: _struct_pb2.Struct
     summary: str
     def __init__(self, output_format: _Optional[_Union[Format, str]] = ..., output: _Optional[_Union[_struct_pb2.Struct, _Mapping]] = ..., summary: _Optional[str] = ...) -> None: ...
+
+class RememberResult(_message.Message):
+    __slots__ = ("status", "entry_id")
+    STATUS_FIELD_NUMBER: _ClassVar[int]
+    ENTRY_ID_FIELD_NUMBER: _ClassVar[int]
+    status: str
+    entry_id: str
+    def __init__(self, status: _Optional[str] = ..., entry_id: _Optional[str] = ...) -> None: ...
 
 class StatusRequest(_message.Message):
     __slots__ = ()
