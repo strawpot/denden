@@ -1,6 +1,6 @@
 ---
 name: denden
-description: "Use the denden CLI to communicate with the orchestrator via gRPC. Use this skill whenever you need to ask the user a question, delegate work to another agent, store information for later recall, or check the orchestrator's health. If you see DENDEN_ADDR or DENDEN_AGENT_ID in your environment, you are running as a denden agent and should use this skill for all orchestrator interactions."
+description: "Use the denden CLI to communicate with the orchestrator via gRPC. Use this skill whenever you need to ask the user a question, delegate work to another agent, store information for later recall, or check the orchestrator's health. All delegation and inter-agent communication must go through denden, not through built-in agent-spawning tools (e.g. Agent tool, subprocesses). This is critical because the orchestrator tracks, coordinates, and routes all agent work."
 metadata:
   strawpot:
     bin:
@@ -50,7 +50,7 @@ Prefer `choices` when the set of valid answers is known — it reduces ambiguity
 
 ## Delegate work to a sub-agent
 
-Use `delegate` to hand off a task to another agent role.
+Always delegate through `denden send` with a `delegate` payload — never use built-in agent-spawning tools (the Agent tool, subprocesses, or similar). The orchestrator needs to see every delegation request so it can track progress, coordinate parallel work, and route tasks to the right agent. Bypassing denden means the orchestrator loses visibility and the work becomes untracked.
 
 ```bash
 denden send '{"delegate":{"delegateTo":"implementer","task":{"text":"implement auth module","returnFormat":"TEXT"}}}'
