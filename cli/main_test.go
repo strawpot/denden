@@ -51,7 +51,7 @@ func (s *echoServer) Send(ctx context.Context, req *pb.DenDenRequest) (*pb.DenDe
 			Status:        pb.ResponseStatus_OK,
 			Result: &pb.DenDenResponse_DelegateResult{
 				DelegateResult: &pb.DelegateResult{
-					Summary: p.Delegate.Task.Text,
+					Content: &pb.DelegateResult_Text{Text: p.Delegate.Task.Text},
 				},
 			},
 		}, nil
@@ -159,8 +159,8 @@ func TestSendDelegate(t *testing.T) {
 		t.Fatalf("failed to parse response: %v", err)
 	}
 
-	if resp.GetDelegateResult().GetSummary() != "build it" {
-		t.Errorf("unexpected summary: %s", resp.GetDelegateResult().GetSummary())
+	if resp.GetDelegateResult().GetText() != "build it" {
+		t.Errorf("unexpected text: %s", resp.GetDelegateResult().GetText())
 	}
 }
 

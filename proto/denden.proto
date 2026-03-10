@@ -130,9 +130,10 @@ message AskUserResult {
 // ---------------------------------------------------------------------------
 
 message DelegateResult {
-  Format output_format = 1;
-  google.protobuf.Struct output = 2;
-  string summary = 3;
+  oneof content {
+    string text = 1;
+    google.protobuf.Struct json = 2;
+  }
 }
 
 // ---------------------------------------------------------------------------

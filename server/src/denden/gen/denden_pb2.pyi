@@ -136,14 +136,12 @@ class AskUserResult(_message.Message):
     def __init__(self, text: _Optional[str] = ..., json: _Optional[_Union[_struct_pb2.Struct, _Mapping]] = ...) -> None: ...
 
 class DelegateResult(_message.Message):
-    __slots__ = ("output_format", "output", "summary")
-    OUTPUT_FORMAT_FIELD_NUMBER: _ClassVar[int]
-    OUTPUT_FIELD_NUMBER: _ClassVar[int]
-    SUMMARY_FIELD_NUMBER: _ClassVar[int]
-    output_format: Format
-    output: _struct_pb2.Struct
-    summary: str
-    def __init__(self, output_format: _Optional[_Union[Format, str]] = ..., output: _Optional[_Union[_struct_pb2.Struct, _Mapping]] = ..., summary: _Optional[str] = ...) -> None: ...
+    __slots__ = ("text", "json")
+    TEXT_FIELD_NUMBER: _ClassVar[int]
+    JSON_FIELD_NUMBER: _ClassVar[int]
+    text: str
+    json: _struct_pb2.Struct
+    def __init__(self, text: _Optional[str] = ..., json: _Optional[_Union[_struct_pb2.Struct, _Mapping]] = ...) -> None: ...
 
 class RememberResult(_message.Message):
     __slots__ = ("status", "entry_id")

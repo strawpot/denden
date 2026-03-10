@@ -42,8 +42,7 @@ def _delegate_handler(request: denden_pb2.DenDenRequest) -> denden_pb2.DenDenRes
     return ok_response(
         request.request_id,
         delegate_result=denden_pb2.DelegateResult(
-            summary=task.text,
-            output_format=task.return_format,
+            text=task.text,
         ),
     )
 
@@ -184,7 +183,7 @@ class TestE2EDelegate:
         resp = json.loads(stdout)
         assert resp.get("status", "OK") == "OK"
         result = resp["delegateResult"]
-        assert result["summary"] == "build auth module"
+        assert result["text"] == "build auth module"
 
     def test_with_trace(self, cli_binary, server_addr):
         stdout, _, ec = run_cli(

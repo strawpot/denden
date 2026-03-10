@@ -59,7 +59,7 @@ def _echo_handler(request: denden_pb2.DenDenRequest) -> denden_pb2.DenDenRespons
     return ok_response(
         request.request_id,
         delegate_result=denden_pb2.DelegateResult(
-            summary=request.delegate.task.text,
+            text=request.delegate.task.text,
         ),
     )
 
@@ -102,7 +102,7 @@ class TestDendenServicer:
         self.servicer.set_handler("delegate", _echo_handler)
         resp = self.servicer.Send(_delegate_request(), None)
         assert resp.status == denden_pb2.OK
-        assert resp.delegate_result.summary == "do the thing"
+        assert resp.delegate_result.text == "do the thing"
 
     def test_handler_exception(self):
         def bad_handler(req):
@@ -140,10 +140,10 @@ class TestResponseHelpers:
         assert resp.ask_user_result.text == "blue"
 
     def test_ok_response_delegate(self):
-        result = denden_pb2.DelegateResult(summary="done")
+        result = denden_pb2.DelegateResult(text="done")
         resp = ok_response("req-2", delegate_result=result)
         assert resp.status == denden_pb2.OK
-        assert resp.delegate_result.summary == "done"
+        assert resp.delegate_result.text == "done"
 
     def test_denied_response(self):
         resp = denied_response("req-1", DENY_ROLE_NOT_ALLOWED, "nope")
@@ -252,7 +252,7 @@ class TestGRPCIntegration:
         stub = denden_pb2_grpc.DendenStub(grpc_server)
         resp = stub.Send(_delegate_request())
         assert resp.status == denden_pb2.OK
-        assert resp.delegate_result.summary == "do the thing"
+        assert resp.delegate_result.text == "do the thing"
 
     def test_send_no_payload(self, grpc_server):
         stub = denden_pb2_grpc.DendenStub(grpc_server)
