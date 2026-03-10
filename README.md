@@ -123,7 +123,7 @@ def handle_delegate(request):
     # ... run the delegated task ...
     return ok_response(
         request.request_id,
-        delegate_result=denden_pb2.DelegateResult(summary="done"),
+        delegate_result=denden_pb2.DelegateResult(text="done"),
     )
 
 server.on_ask_user(handle_ask_user)

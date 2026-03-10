@@ -837,10 +837,12 @@ func (*AskUserResult_Text) isAskUserResult_Content() {}
 func (*AskUserResult_Json) isAskUserResult_Content() {}
 
 type DelegateResult struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	OutputFormat  Format                 `protobuf:"varint,1,opt,name=output_format,json=outputFormat,proto3,enum=denden.Format" json:"output_format,omitempty"`
-	Output        *structpb.Struct       `protobuf:"bytes,2,opt,name=output,proto3" json:"output,omitempty"`
-	Summary       string                 `protobuf:"bytes,3,opt,name=summary,proto3" json:"summary,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Types that are valid to be assigned to Content:
+	//
+	//	*DelegateResult_Text
+	//	*DelegateResult_Json
+	Content       isDelegateResult_Content `protobuf_oneof:"content"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -875,26 +877,46 @@ func (*DelegateResult) Descriptor() ([]byte, []int) {
 	return file_denden_proto_rawDescGZIP(), []int{9}
 }
 
-func (x *DelegateResult) GetOutputFormat() Format {
+func (x *DelegateResult) GetContent() isDelegateResult_Content {
 	if x != nil {
-		return x.OutputFormat
-	}
-	return Format_TEXT
-}
-
-func (x *DelegateResult) GetOutput() *structpb.Struct {
-	if x != nil {
-		return x.Output
+		return x.Content
 	}
 	return nil
 }
 
-func (x *DelegateResult) GetSummary() string {
+func (x *DelegateResult) GetText() string {
 	if x != nil {
-		return x.Summary
+		if x, ok := x.Content.(*DelegateResult_Text); ok {
+			return x.Text
+		}
 	}
 	return ""
 }
+
+func (x *DelegateResult) GetJson() *structpb.Struct {
+	if x != nil {
+		if x, ok := x.Content.(*DelegateResult_Json); ok {
+			return x.Json
+		}
+	}
+	return nil
+}
+
+type isDelegateResult_Content interface {
+	isDelegateResult_Content()
+}
+
+type DelegateResult_Text struct {
+	Text string `protobuf:"bytes,1,opt,name=text,proto3,oneof"`
+}
+
+type DelegateResult_Json struct {
+	Json *structpb.Struct `protobuf:"bytes,2,opt,name=json,proto3,oneof"`
+}
+
+func (*DelegateResult_Text) isDelegateResult_Content() {}
+
+func (*DelegateResult_Json) isDelegateResult_Content() {}
 
 type RememberResult struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -1094,11 +1116,11 @@ const file_denden_proto_rawDesc = "" +
 	"\rAskUserResult\x12\x14\n" +
 	"\x04text\x18\x01 \x01(\tH\x00R\x04text\x12-\n" +
 	"\x04json\x18\x02 \x01(\v2\x17.google.protobuf.StructH\x00R\x04jsonB\t\n" +
-	"\acontent\"\x90\x01\n" +
-	"\x0eDelegateResult\x123\n" +
-	"\routput_format\x18\x01 \x01(\x0e2\x0e.denden.FormatR\foutputFormat\x12/\n" +
-	"\x06output\x18\x02 \x01(\v2\x17.google.protobuf.StructR\x06output\x12\x18\n" +
-	"\asummary\x18\x03 \x01(\tR\asummary\"C\n" +
+	"\acontent\"`\n" +
+	"\x0eDelegateResult\x12\x14\n" +
+	"\x04text\x18\x01 \x01(\tH\x00R\x04text\x12-\n" +
+	"\x04json\x18\x02 \x01(\v2\x17.google.protobuf.StructH\x00R\x04jsonB\t\n" +
+	"\acontent\"C\n" +
 	"\x0eRememberResult\x12\x16\n" +
 	"\x06status\x18\x01 \x01(\tR\x06status\x12\x19\n" +
 	"\bentry_id\x18\x02 \x01(\tR\aentryId\"\x0f\n" +
@@ -1167,17 +1189,16 @@ var file_denden_proto_depIdxs = []int32{
 	11, // 12: denden.DenDenResponse.delegate_result:type_name -> denden.DelegateResult
 	12, // 13: denden.DenDenResponse.remember_result:type_name -> denden.RememberResult
 	16, // 14: denden.AskUserResult.json:type_name -> google.protobuf.Struct
-	0,  // 15: denden.DelegateResult.output_format:type_name -> denden.Format
-	16, // 16: denden.DelegateResult.output:type_name -> google.protobuf.Struct
-	2,  // 17: denden.Denden.Send:input_type -> denden.DenDenRequest
-	13, // 18: denden.Denden.Status:input_type -> denden.StatusRequest
-	8,  // 19: denden.Denden.Send:output_type -> denden.DenDenResponse
-	14, // 20: denden.Denden.Status:output_type -> denden.StatusResponse
-	19, // [19:21] is the sub-list for method output_type
-	17, // [17:19] is the sub-list for method input_type
-	17, // [17:17] is the sub-list for extension type_name
-	17, // [17:17] is the sub-list for extension extendee
-	0,  // [0:17] is the sub-list for field type_name
+	16, // 15: denden.DelegateResult.json:type_name -> google.protobuf.Struct
+	2,  // 16: denden.Denden.Send:input_type -> denden.DenDenRequest
+	13, // 17: denden.Denden.Status:input_type -> denden.StatusRequest
+	8,  // 18: denden.Denden.Send:output_type -> denden.DenDenResponse
+	14, // 19: denden.Denden.Status:output_type -> denden.StatusResponse
+	18, // [18:20] is the sub-list for method output_type
+	16, // [16:18] is the sub-list for method input_type
+	16, // [16:16] is the sub-list for extension type_name
+	16, // [16:16] is the sub-list for extension extendee
+	0,  // [0:16] is the sub-list for field type_name
 }
 
 func init() { file_denden_proto_init() }
@@ -1198,6 +1219,10 @@ func file_denden_proto_init() {
 	file_denden_proto_msgTypes[8].OneofWrappers = []any{
 		(*AskUserResult_Text)(nil),
 		(*AskUserResult_Json)(nil),
+	}
+	file_denden_proto_msgTypes[9].OneofWrappers = []any{
+		(*DelegateResult_Text)(nil),
+		(*DelegateResult_Json)(nil),
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
