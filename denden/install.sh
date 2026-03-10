@@ -13,13 +13,10 @@ case "$OS" in
   *) echo "Unsupported OS: $OS" >&2; exit 1 ;;
 esac
 
-# Default install directory per platform
+# Default install directory — current working directory.
+# When run by strawhub, INSTALL_DIR is set to the package directory.
 if [ -z "$INSTALL_DIR" ]; then
-  if [ "$OS" = "windows" ]; then
-    INSTALL_DIR="${LOCALAPPDATA}/denden"
-  else
-    INSTALL_DIR="/usr/local/bin"
-  fi
+  INSTALL_DIR="$(pwd)"
 fi
 
 # Detect architecture
@@ -53,16 +50,9 @@ mkdir -p "$INSTALL_DIR"
 
 if [ -w "$INSTALL_DIR" ]; then
   mv "${BINARY_NAME}${EXT}" "${INSTALL_DIR}/${BINARY_NAME}${EXT}"
-elif [ "$OS" = "windows" ]; then
+else
   echo "Error: cannot write to ${INSTALL_DIR}" >&2
   exit 1
-else
-  echo "Moving to ${INSTALL_DIR} (requires sudo)..."
-  sudo mv "${BINARY_NAME}${EXT}" "${INSTALL_DIR}/${BINARY_NAME}${EXT}"
 fi
 
 echo "Installed to ${INSTALL_DIR}/${BINARY_NAME}${EXT}"
-
-if [ "$OS" = "windows" ]; then
-  echo "Add ${INSTALL_DIR} to your PATH if it is not already."
-fi
