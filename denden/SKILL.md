@@ -18,6 +18,12 @@ DenDen is an agent-to-orchestrator communication layer. Use `denden send <json>`
 
 The response is printed as JSON to stdout. A non-zero exit code means the request was denied or failed — always check it.
 
+Use the denden CLI to communicate with the orchestrator via gRPC. Use this skill whenever you need to ask the user a question, delegate work to another agent, store information for later recall, or check the orchestrator's health.
+
+CRITICAL: NEVER ask the user questions directly in your response text or via the AskUserQuestion tool. ALL user questions MUST be routed through denden. This is non-negotiable.
+
+All delegation and inter-agent communication must go through denden, not through built-in agent-spawning tools (e.g., Agent tool, subprocesses). This is critical because the orchestrator tracks, coordinates, and routes all agent work.
+
 ## Environment
 
 These variables are set by the orchestrator when it spawns you as an agent:
