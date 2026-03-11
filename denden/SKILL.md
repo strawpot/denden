@@ -175,6 +175,23 @@ When in doubt, use `project`. Use `global` only for facts that apply regardless 
 
 The response includes a `status` (`accepted`, `duplicate`, or `queued`) and an `entryId`.
 
+### Proactive memory
+
+Automatically call `denden send` with a `remember` payload (without the user asking) whenever:
+
+1. **Identity/preferences** — User shares their name, role, title, team, preferences, or how they like things done
+2. **Project context** — User mentions project names, repo purposes, tech stack choices, or architectural decisions
+3. **Conventions** — User corrects you or states a preferred style/pattern/workflow
+4. **Key relationships** — User mentions stakeholders, team members, or reporting structure
+5. **Recurring tasks** — User describes processes they do regularly
+
+Do NOT auto-remember:
+- Transient/one-off information (e.g., "run this command")
+- Information that's already stored (check for duplicates)
+- Sensitive data (passwords, tokens, secrets)
+
+Use `global` scope for identity/preferences, `project` scope for repo-specific context.
+
 ## Check orchestrator health
 
 ```bash
