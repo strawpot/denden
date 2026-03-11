@@ -1,6 +1,6 @@
 ---
 name: denden
-description: "Use the denden CLI to communicate with the orchestrator via gRPC. Use this skill whenever you need to ask the user a question, delegate work to another agent, store information for later recall, or check the orchestrator's health. All delegation and inter-agent communication must go through denden, not through built-in agent-spawning tools (e.g. Agent tool, subprocesses). This is critical because the orchestrator tracks, coordinates, and routes all agent work."
+description: "Use the denden CLI to communicate with the orchestrator via gRPC. Use this skill whenever you need to ask the user a question, delegate work to another agent, store information for later recall, or check the orchestrator's health. All delegation and inter-agent communication must go through denden, not through built-in agent-spawning tools (e.g. Agent tool, subprocesses). This is critical because the orchestrator tracks, coordinates, and routes all agent work. Also trigger proactively (without user asking) when the user shares personal information, preferences, project context, or conventions worth persisting."
 metadata:
   strawpot:
     bin:
