@@ -53,18 +53,95 @@ Prefer `choices` when the set of valid answers is known — it reduces ambiguity
 Always delegate through `denden send` with a `delegate` payload — never use built-in agent-spawning tools (the Agent tool, subprocesses, or similar). The orchestrator needs to see every delegation request so it can track progress, coordinate parallel work, and route tasks to the right agent. Bypassing denden means the orchestrator loses visibility and the work becomes untracked.
 
 ```bash
-denden send '{"delegate":{"delegateTo":"implementer","task":{"text":"implement auth module","returnFormat":"TEXT"}}}'
+denden send '{"delegate":{"delegateTo":"code-reviewer","task":{"text":"Review the auth module for security issues","returnFormat":"TEXT"}}}'
 ```
+
+**`delegateTo` must exactly match the role slug** listed in the **Delegation** section of your prompt (e.g., `code-reviewer`, not `Code Reviewer`, `codeReviewer`, or `reviewer`). Spelling, hyphens, and case must match exactly. If you use an unrecognized slug the request will fail with `DENY_ROLE_NOT_ALLOWED`.
 
 | Field | Type | Required | Description |
 |---|---|---|---|
-| `delegateTo` | string | yes | Target role |
+| `delegateTo` | string | yes | Exact role slug (see Delegation section of your prompt) |
 | `task.text` | string | yes | Task description |
 | `task.artifactRefs` | string[] | no | References to input artifacts |
 | `task.extra` | object | no | Additional key-value context |
-| `task.returnFormat` | Format | no | Expected output format |
+| `task.returnFormat` | Format | no | Expected output format (`TEXT` or `JSON`) |
 
-**Roles (examples):** `planner`, `implementer`, `reviewer`, `fixer`, `verifier`
+### Reading the response
+
+On success (`"status": "OK"`), the sub-agent's output is in `delegateResult`:
+
+```json
+// TEXT format (default)
+{
+  "status": "OK",
+  "delegateResult": {
+    "text": "The auth module looks secure. No issues found."
+  }
+}
+```
+
+```json
+// JSON format (when returnFormat is "JSON")
+{
+  "status": "OK",
+  "delegateResult": {
+    "json": { "issues": [], "verdict": "pass" }
+  }
+}
+```
+
+Extract the text output in bash:
+
+```bash
+response=$(denden send '{"delegate":{"delegateTo":"code-reviewer","task":{"text":"Review auth module"}}}')
+output=$(echo "$response" | python3 -c "import json,sys; print(json.load(sys.stdin).get('delegateResult',{}).get('text',''))")
+```
+
+Feed one sub-agent's output as input to the next by passing `$output` in the next delegation's `task.text`.
+
+### Error recovery
+
+On failure (exit code non-zero), `status` is `"DENIED"` or `"ERROR"`:
+
+```json
+{
+  "status": "DENIED",
+  "error": {
+    "code": "DENY_DEPTH_LIMIT",
+    "message": "max delegation depth exceeded",
+    "retryable": false
+  }
+}
+```
+
+| `error.code` | Meaning | What to do |
+|---|---|---|
+| `DENY_ROLE_NOT_ALLOWED` | Role slug not in your Delegation list | Check the exact slug in your prompt's Delegation section |
+| `DENY_DEPTH_LIMIT` | Delegation chain too deep | Handle the work directly or simplify the chain |
+| `DENY_DELEGATIONS_LIMIT` | Session delegation quota reached | Handle remaining work directly |
+| `DENY_BUDGET_EXCEEDED` | Budget exceeded | Reduce scope or use `askUser` to request more budget |
+| `ERR_SUBAGENT_FAILURE` | Sub-agent exited with non-zero code | Retry with a clearer task description, or escalate via `askUser` |
+
+If `"retryable": true`, you may retry the same request once. Otherwise escalate to the user.
+
+### Parallel delegation
+
+Independent tasks can run in parallel — fire multiple `denden send` calls concurrently with `&` and collect results:
+
+```bash
+# Fire both delegations in background
+denden send '{"delegate":{"delegateTo":"code-reviewer","task":{"text":"Review auth module"}}}' > /tmp/review.json &
+denden send '{"delegate":{"delegateTo":"code-simplifier","task":{"text":"Simplify utils.py"}}}' > /tmp/simplify.json &
+
+# Wait for both to complete
+wait
+
+# Read results
+review_output=$(python3 -c "import json; print(json.load(open('/tmp/review.json')).get('delegateResult',{}).get('text',''))")
+simplify_output=$(python3 -c "import json; print(json.load(open('/tmp/simplify.json')).get('delegateResult',{}).get('text',''))")
+```
+
+Each `denden send` blocks until the sub-agent finishes. Running them with `&` gives true parallelism and significantly reduces total wall time for independent stages.
 
 ## Remember information
 
@@ -77,8 +154,18 @@ denden send '{"remember":{"content":"The auth module uses JWT with RS256","keywo
 | Field | Type | Required | Description |
 |---|---|---|---|
 | `content` | string | yes | Information to remember |
-| `keywords` | string[] | no | Keywords for search/indexing |
-| `scope` | string | no | `global`, `project`, or `role` |
+| `keywords` | string[] | no | Keywords for relevance-based retrieval |
+| `scope` | string | no | `global`, `project`, or `role` (default: `project`) |
+
+**Scope semantics:**
+
+| Scope | Visible to | When to use |
+|---|---|---|
+| `project` | All sessions in this project | Architecture decisions, codebase conventions, known issues in this repo |
+| `role` | All sessions using this role in this project | Role-specific patterns, preferred tools or libraries for this project |
+| `global` | All sessions everywhere | Personal preferences, universal standards, cross-project conventions |
+
+When in doubt, use `project`. Use `global` only for facts that apply regardless of which project you're working in.
 
 The response includes a `status` (`accepted`, `duplicate`, or `queued`) and an `entryId`.
 
