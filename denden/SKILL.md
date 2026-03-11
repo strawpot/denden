@@ -192,6 +192,19 @@ Do NOT auto-remember:
 
 Use `global` scope for identity/preferences, `project` scope for repo-specific context.
 
+### Auto-remember triggers
+
+BEFORE responding to any user message, scan for the following and call `remember` immediately:
+
+- User states personal facts (name, role, company, team, preferences)
+- User shares goals, plans, or career aspirations
+- User expresses preferences ("I prefer X", "I like Y")
+- User corrects you about something personal
+- User shares project context, tech stack choices, or architectural decisions
+- Any information that would be useful in a future session
+
+Do this BEFORE writing your main response — treat it as a pre-response step.
+
 ## Check orchestrator health
 
 ```bash
