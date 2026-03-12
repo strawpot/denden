@@ -49,12 +49,63 @@ def _delegate_request(request_id: str = "req-2") -> denden_pb2.DenDenRequest:
     )
 
 
+def _recall_request(request_id: str = "req-3") -> denden_pb2.DenDenRequest:
+    return denden_pb2.DenDenRequest(
+        denden_version=VERSION,
+        request_id=request_id,
+        recall=denden_pb2.RecallPayload(
+            query="testing framework",
+            scope="project",
+            max_results=5,
+        ),
+    )
+
+
+def _remember_request(request_id: str = "req-4") -> denden_pb2.DenDenRequest:
+    return denden_pb2.DenDenRequest(
+        denden_version=VERSION,
+        request_id=request_id,
+        remember=denden_pb2.RememberPayload(
+            content="This project uses pytest",
+            keywords=["testing", "pytest"],
+            scope="project",
+        ),
+    )
+
+
 def _echo_handler(request: denden_pb2.DenDenRequest) -> denden_pb2.DenDenResponse:
     """Handler that echoes the question or task text back."""
     if request.WhichOneof("payload") == "ask_user":
         return ok_response(
             request.request_id,
             ask_user_result=denden_pb2.AskUserResult(text=request.ask_user.question),
+        )
+    if request.WhichOneof("payload") == "delegate":
+        return ok_response(
+            request.request_id,
+            delegate_result=denden_pb2.DelegateResult(
+                text=request.delegate.task.text,
+            ),
+        )
+    if request.WhichOneof("payload") == "recall":
+        return ok_response(
+            request.request_id,
+            recall_result=denden_pb2.RecallResult(entries=[
+                denden_pb2.RecallEntry(
+                    entry_id="k1",
+                    content=request.recall.query,
+                    scope=request.recall.scope,
+                    score=0.9,
+                ),
+            ]),
+        )
+    if request.WhichOneof("payload") == "remember":
+        return ok_response(
+            request.request_id,
+            remember_result=denden_pb2.RememberResult(
+                status="stored",
+                entry_id="e1",
+            ),
         )
     return ok_response(
         request.request_id,
@@ -118,6 +169,20 @@ class TestDendenServicer:
         resp = self.servicer.Status(denden_pb2.StatusRequest(), None)
         assert resp.uptime_seconds >= 0
 
+    def test_recall_dispatch(self):
+        self.servicer.set_handler("recall", _echo_handler)
+        resp = self.servicer.Send(_recall_request(), None)
+        assert resp.status == denden_pb2.OK
+        assert len(resp.recall_result.entries) == 1
+        assert resp.recall_result.entries[0].content == "testing framework"
+
+    def test_remember_dispatch(self):
+        self.servicer.set_handler("remember", _echo_handler)
+        resp = self.servicer.Send(_remember_request(), None)
+        assert resp.status == denden_pb2.OK
+        assert resp.remember_result.status == "stored"
+        assert resp.remember_result.entry_id == "e1"
+
     def test_only_registered_payload_dispatches(self):
         """Register ask_user only; delegate should fail."""
         self.servicer.set_handler("ask_user", _echo_handler)
@@ -144,6 +209,24 @@ class TestResponseHelpers:
         resp = ok_response("req-2", delegate_result=result)
         assert resp.status == denden_pb2.OK
         assert resp.delegate_result.text == "done"
+
+    def test_ok_response_recall(self):
+        result = denden_pb2.RecallResult(entries=[
+            denden_pb2.RecallEntry(entry_id="k1", content="fact", score=0.8),
+        ])
+        resp = ok_response("req-3", recall_result=result)
+        assert resp.status == denden_pb2.OK
+        assert resp.request_id == "req-3"
+        assert len(resp.recall_result.entries) == 1
+        assert resp.recall_result.entries[0].content == "fact"
+
+    def test_ok_response_remember(self):
+        result = denden_pb2.RememberResult(status="stored", entry_id="e1")
+        resp = ok_response("req-4", remember_result=result)
+        assert resp.status == denden_pb2.OK
+        assert resp.request_id == "req-4"
+        assert resp.remember_result.status == "stored"
+        assert resp.remember_result.entry_id == "e1"
 
     def test_denied_response(self):
         resp = denied_response("req-1", DENY_ROLE_NOT_ALLOWED, "nope")
@@ -177,6 +260,16 @@ class TestDenDenServer:
         server = DenDenServer()
         server.on_delegate(_echo_handler)
         assert "delegate" in server._servicer._handlers
+
+    def test_on_recall_registers(self):
+        server = DenDenServer()
+        server.on_recall(_echo_handler)
+        assert "recall" in server._servicer._handlers
+
+    def test_on_remember_registers(self):
+        server = DenDenServer()
+        server.on_remember(_echo_handler)
+        assert "remember" in server._servicer._handlers
 
     def test_start_binds_and_sets_bound_addr(self):
         """start() with port 0 assigns a real port and sets bound_addr."""
@@ -228,6 +321,8 @@ def grpc_server():
     servicer = DendenServicer()
     servicer.set_handler("ask_user", _echo_handler)
     servicer.set_handler("delegate", _echo_handler)
+    servicer.set_handler("recall", _echo_handler)
+    servicer.set_handler("remember", _echo_handler)
 
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=2))
     denden_pb2_grpc.add_DendenServicer_to_server(servicer, server)
@@ -253,6 +348,19 @@ class TestGRPCIntegration:
         resp = stub.Send(_delegate_request())
         assert resp.status == denden_pb2.OK
         assert resp.delegate_result.text == "do the thing"
+
+    def test_send_recall(self, grpc_server):
+        stub = denden_pb2_grpc.DendenStub(grpc_server)
+        resp = stub.Send(_recall_request())
+        assert resp.status == denden_pb2.OK
+        assert resp.recall_result.entries[0].content == "testing framework"
+
+    def test_send_remember(self, grpc_server):
+        stub = denden_pb2_grpc.DendenStub(grpc_server)
+        resp = stub.Send(_remember_request())
+        assert resp.status == denden_pb2.OK
+        assert resp.remember_result.status == "stored"
+        assert resp.remember_result.entry_id == "e1"
 
     def test_send_no_payload(self, grpc_server):
         stub = denden_pb2_grpc.DendenStub(grpc_server)

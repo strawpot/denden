@@ -11,7 +11,7 @@ Agent-to-orchestrator communication layer. A gRPC transport where agents call ba
 ```
 Orchestrator (Python gRPC server)
   ├── spawns agents as subprocesses
-  └── handles ask_user / delegate requests
+  └── handles ask_user / delegate / remember / recall requests
          ▲
          │ gRPC (localhost)
          │
@@ -73,6 +73,24 @@ denden-server --verbose
     }
   }
 }'
+
+# Remember information
+./cli/denden send '{
+  "remember": {
+    "content": "This project uses pytest",
+    "keywords": ["testing", "pytest"],
+    "scope": "project"
+  }
+}'
+
+# Recall stored information
+./cli/denden send '{
+  "recall": {
+    "query": "testing framework",
+    "scope": "project",
+    "maxResults": 5
+  }
+}'
 ```
 
 The CLI auto-fills `request_id`, `denden_version`, `trace.created_at`, and trace fields from environment variables.
@@ -91,7 +109,7 @@ The CLI auto-fills `request_id`, `denden_version`, `trace.created_at`, and trace
 
 Single `.proto` file at `proto/denden.proto`. Two RPCs:
 
-- **Send** — dispatches `ask_user` or `delegate` requests (oneof payload)
+- **Send** — dispatches `ask_user`, `delegate`, `remember`, or `recall` requests (oneof payload)
 - **Status** — health check
 
 Response statuses: `OK`, `DENIED`, `ERROR`.
@@ -128,6 +146,8 @@ def handle_delegate(request):
 
 server.on_ask_user(handle_ask_user)
 server.on_delegate(handle_delegate)
+server.on_remember(handle_remember)
+server.on_recall(handle_recall)
 server.run()
 ```
 
