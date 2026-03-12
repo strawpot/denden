@@ -14,7 +14,7 @@ metadata:
 
 # DenDen CLI
 
-DenDen is an agent-to-orchestrator communication layer. Use `denden send <json>` to send a request to the orchestrator. The JSON payload must contain exactly one of `askUser`, `delegate`, or `remember`.
+DenDen is an agent-to-orchestrator communication layer. Use `denden send <json>` to send a request to the orchestrator. The JSON payload must contain exactly one of `askUser`, `delegate`, `remember`, or `recall`.
 
 The response is printed as JSON to stdout. A non-zero exit code means the request was denied or failed — always check it.
 
@@ -53,6 +53,16 @@ denden send '{"askUser":{"question":"Which language should the module use?","cho
 | `responseFormat` | Format | no | `TEXT` (default) or `JSON` |
 
 Prefer `choices` when the set of valid answers is known — it reduces ambiguity and speeds up the interaction.
+
+### Approval requests
+
+Use `askUser` whenever you need explicit approval before proceeding with an action — for example, confirming a commit, pushing code, deleting files, or any irreversible/high-impact operation.
+
+```bash
+denden send '{"askUser":{"question":"Ready to push to origin/main. Proceed?","choices":["Yes","No"],"why":"Force-pushing will overwrite remote history"}}'
+```
+
+This ensures all approval flows are routed through the orchestrator, keeping a full audit trail of what was approved and when.
 
 ## Delegate work to a sub-agent
 
@@ -204,6 +214,45 @@ BEFORE responding to any user message, scan for the following and call `remember
 - Any information that would be useful in a future session
 
 Do this BEFORE writing your main response — treat it as a pre-response step.
+
+## Recall stored information
+
+Use `recall` to query previously stored memories on-demand. This is useful when your task evolves mid-session and you need context that wasn't pre-loaded at spawn time.
+
+```bash
+denden send '{"recall":{"query":"auth module JWT configuration","scope":"project","maxResults":5}}'
+```
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `query` | string | yes | Free-text query scored against stored keywords |
+| `keywords` | string[] | no | Explicit keyword filter (narrows results) |
+| `scope` | string | no | `global`, `project`, or `role` (default: searches all scopes) |
+| `maxResults` | int | no | Maximum entries to return (default: 10) |
+
+The response contains matching entries sorted by relevance:
+
+```json
+{
+  "status": "OK",
+  "recallResult": {
+    "entries": [
+      {
+        "entryId": "k_a1b2c3d4",
+        "content": "The auth module uses JWT with RS256",
+        "keywords": ["auth", "jwt"],
+        "scope": "project",
+        "score": 0.85
+      }
+    ]
+  }
+}
+```
+
+Use `recall` when:
+- Your task changes direction and you need context not provided at spawn
+- You want to check what's already stored before calling `remember` (avoids duplicates)
+- You need to reference information another agent stored earlier in the session
 
 ## Check orchestrator health
 

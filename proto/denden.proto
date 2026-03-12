@@ -32,6 +32,7 @@ message DenDenRequest {
     AskUserPayload ask_user = 10;
     DelegatePayload delegate = 11;
     RememberPayload remember = 12;
+    RecallPayload recall = 13;
   }
 }
 
@@ -99,6 +100,7 @@ message DenDenResponse {
     AskUserResult ask_user_result = 10;
     DelegateResult delegate_result = 11;
     RememberResult remember_result = 12;
+    RecallResult recall_result = 13;
   }
 }
 
@@ -143,6 +145,29 @@ message DelegateResult {
 message RememberResult {
   string status = 1;    // "accepted" | "duplicate" | "queued"
   string entry_id = 2;
+}
+
+// ---------------------------------------------------------------------------
+// recall result
+// ---------------------------------------------------------------------------
+
+message RecallPayload {
+  string query = 1;              // free-text query scored against keywords
+  repeated string keywords = 2;  // optional explicit keyword filter
+  string scope = 3;              // "global" | "project" | "role" (default: all)
+  int32 max_results = 4;         // limit returned entries (default: 10)
+}
+
+message RecallResult {
+  repeated RecallEntry entries = 1;
+}
+
+message RecallEntry {
+  string entry_id = 1;
+  string content = 2;
+  repeated string keywords = 3;
+  string scope = 4;
+  double score = 5;
 }
 
 // ---------------------------------------------------------------------------

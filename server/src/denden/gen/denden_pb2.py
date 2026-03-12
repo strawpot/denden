@@ -26,7 +26,7 @@ from google.protobuf import timestamp_pb2 as google_dot_protobuf_dot_timestamp__
 from google.protobuf import struct_pb2 as google_dot_protobuf_dot_struct__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0c\x64\x65nden.proto\x12\x06\x64\x65nden\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1cgoogle/protobuf/struct.proto\"\xea\x01\n\rDenDenRequest\x12\x16\n\x0e\x64\x65nden_version\x18\x01 \x01(\t\x12\x12\n\nrequest_id\x18\x02 \x01(\t\x12\x1c\n\x05trace\x18\x03 \x01(\x0b\x32\r.denden.Trace\x12*\n\x08\x61sk_user\x18\n \x01(\x0b\x32\x16.denden.AskUserPayloadH\x00\x12+\n\x08\x64\x65legate\x18\x0b \x01(\x0b\x32\x17.denden.DelegatePayloadH\x00\x12+\n\x08remember\x18\x0c \x01(\x0b\x32\x17.denden.RememberPayloadH\x00\x42\t\n\x07payload\"\x84\x01\n\x05Trace\x12\x0e\n\x06run_id\x18\x01 \x01(\t\x12\x19\n\x11\x61gent_instance_id\x18\x02 \x01(\t\x12 \n\x18parent_agent_instance_id\x18\x03 \x01(\t\x12.\n\ncreated_at\x18\x04 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\"\x80\x01\n\x0e\x41skUserPayload\x12\x10\n\x08question\x18\x01 \x01(\t\x12\x0f\n\x07\x63hoices\x18\x02 \x03(\t\x12\x15\n\rdefault_value\x18\x03 \x01(\t\x12\x0b\n\x03why\x18\x04 \x01(\t\x12\'\n\x0fresponse_format\x18\x05 \x01(\x0e\x32\x0e.denden.Format\"B\n\x0f\x44\x65legatePayload\x12\x13\n\x0b\x64\x65legate_to\x18\x01 \x01(\t\x12\x1a\n\x04task\x18\x02 \x01(\x0b\x32\x0c.denden.Task\"z\n\x04Task\x12\x0c\n\x04text\x18\x01 \x01(\t\x12\x15\n\rartifact_refs\x18\x02 \x03(\t\x12&\n\x05\x65xtra\x18\x03 \x01(\x0b\x32\x17.google.protobuf.Struct\x12%\n\rreturn_format\x18\x04 \x01(\x0e\x32\x0e.denden.Format\"C\n\x0fRememberPayload\x12\x0f\n\x07\x63ontent\x18\x01 \x01(\t\x12\x10\n\x08keywords\x18\x02 \x03(\t\x12\r\n\x05scope\x18\x03 \x01(\t\"\xaa\x02\n\x0e\x44\x65nDenResponse\x12\x16\n\x0e\x64\x65nden_version\x18\x01 \x01(\t\x12\x12\n\nrequest_id\x18\x02 \x01(\t\x12&\n\x06status\x18\x03 \x01(\x0e\x32\x16.denden.ResponseStatus\x12\"\n\x05\x65rror\x18\x04 \x01(\x0b\x32\x13.denden.ErrorDetail\x12\x30\n\x0f\x61sk_user_result\x18\n \x01(\x0b\x32\x15.denden.AskUserResultH\x00\x12\x31\n\x0f\x64\x65legate_result\x18\x0b \x01(\x0b\x32\x16.denden.DelegateResultH\x00\x12\x31\n\x0fremember_result\x18\x0c \x01(\x0b\x32\x16.denden.RememberResultH\x00\x42\x08\n\x06result\"?\n\x0b\x45rrorDetail\x12\x0c\n\x04\x63ode\x18\x01 \x01(\t\x12\x0f\n\x07message\x18\x02 \x01(\t\x12\x11\n\tretryable\x18\x03 \x01(\x08\"S\n\rAskUserResult\x12\x0e\n\x04text\x18\x01 \x01(\tH\x00\x12\'\n\x04json\x18\x02 \x01(\x0b\x32\x17.google.protobuf.StructH\x00\x42\t\n\x07\x63ontent\"T\n\x0e\x44\x65legateResult\x12\x0e\n\x04text\x18\x01 \x01(\tH\x00\x12\'\n\x04json\x18\x02 \x01(\x0b\x32\x17.google.protobuf.StructH\x00\x42\t\n\x07\x63ontent\"2\n\x0eRememberResult\x12\x0e\n\x06status\x18\x01 \x01(\t\x12\x10\n\x08\x65ntry_id\x18\x02 \x01(\t\"\x0f\n\rStatusRequest\"?\n\x0eStatusResponse\x12\x16\n\x0euptime_seconds\x18\x01 \x01(\x03\x12\x15\n\ractive_agents\x18\x02 \x01(\x05*\x1c\n\x06\x46ormat\x12\x08\n\x04TEXT\x10\x00\x12\x08\n\x04JSON\x10\x01*/\n\x0eResponseStatus\x12\x06\n\x02OK\x10\x00\x12\n\n\x06\x44\x45NIED\x10\x01\x12\t\n\x05\x45RROR\x10\x02\x32x\n\x06\x44\x65nden\x12\x35\n\x04Send\x12\x15.denden.DenDenRequest\x1a\x16.denden.DenDenResponse\x12\x37\n\x06Status\x12\x15.denden.StatusRequest\x1a\x16.denden.StatusResponseB+Z)github.com/strawpot/denden/cli/gen/dendenb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0c\x64\x65nden.proto\x12\x06\x64\x65nden\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1cgoogle/protobuf/struct.proto\"\x93\x02\n\rDenDenRequest\x12\x16\n\x0e\x64\x65nden_version\x18\x01 \x01(\t\x12\x12\n\nrequest_id\x18\x02 \x01(\t\x12\x1c\n\x05trace\x18\x03 \x01(\x0b\x32\r.denden.Trace\x12*\n\x08\x61sk_user\x18\n \x01(\x0b\x32\x16.denden.AskUserPayloadH\x00\x12+\n\x08\x64\x65legate\x18\x0b \x01(\x0b\x32\x17.denden.DelegatePayloadH\x00\x12+\n\x08remember\x18\x0c \x01(\x0b\x32\x17.denden.RememberPayloadH\x00\x12\'\n\x06recall\x18\r \x01(\x0b\x32\x15.denden.RecallPayloadH\x00\x42\t\n\x07payload\"\x84\x01\n\x05Trace\x12\x0e\n\x06run_id\x18\x01 \x01(\t\x12\x19\n\x11\x61gent_instance_id\x18\x02 \x01(\t\x12 \n\x18parent_agent_instance_id\x18\x03 \x01(\t\x12.\n\ncreated_at\x18\x04 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\"\x80\x01\n\x0e\x41skUserPayload\x12\x10\n\x08question\x18\x01 \x01(\t\x12\x0f\n\x07\x63hoices\x18\x02 \x03(\t\x12\x15\n\rdefault_value\x18\x03 \x01(\t\x12\x0b\n\x03why\x18\x04 \x01(\t\x12\'\n\x0fresponse_format\x18\x05 \x01(\x0e\x32\x0e.denden.Format\"B\n\x0f\x44\x65legatePayload\x12\x13\n\x0b\x64\x65legate_to\x18\x01 \x01(\t\x12\x1a\n\x04task\x18\x02 \x01(\x0b\x32\x0c.denden.Task\"z\n\x04Task\x12\x0c\n\x04text\x18\x01 \x01(\t\x12\x15\n\rartifact_refs\x18\x02 \x03(\t\x12&\n\x05\x65xtra\x18\x03 \x01(\x0b\x32\x17.google.protobuf.Struct\x12%\n\rreturn_format\x18\x04 \x01(\x0e\x32\x0e.denden.Format\"C\n\x0fRememberPayload\x12\x0f\n\x07\x63ontent\x18\x01 \x01(\t\x12\x10\n\x08keywords\x18\x02 \x03(\t\x12\r\n\x05scope\x18\x03 \x01(\t\"\xd9\x02\n\x0e\x44\x65nDenResponse\x12\x16\n\x0e\x64\x65nden_version\x18\x01 \x01(\t\x12\x12\n\nrequest_id\x18\x02 \x01(\t\x12&\n\x06status\x18\x03 \x01(\x0e\x32\x16.denden.ResponseStatus\x12\"\n\x05\x65rror\x18\x04 \x01(\x0b\x32\x13.denden.ErrorDetail\x12\x30\n\x0f\x61sk_user_result\x18\n \x01(\x0b\x32\x15.denden.AskUserResultH\x00\x12\x31\n\x0f\x64\x65legate_result\x18\x0b \x01(\x0b\x32\x16.denden.DelegateResultH\x00\x12\x31\n\x0fremember_result\x18\x0c \x01(\x0b\x32\x16.denden.RememberResultH\x00\x12-\n\rrecall_result\x18\r \x01(\x0b\x32\x14.denden.RecallResultH\x00\x42\x08\n\x06result\"?\n\x0b\x45rrorDetail\x12\x0c\n\x04\x63ode\x18\x01 \x01(\t\x12\x0f\n\x07message\x18\x02 \x01(\t\x12\x11\n\tretryable\x18\x03 \x01(\x08\"S\n\rAskUserResult\x12\x0e\n\x04text\x18\x01 \x01(\tH\x00\x12\'\n\x04json\x18\x02 \x01(\x0b\x32\x17.google.protobuf.StructH\x00\x42\t\n\x07\x63ontent\"T\n\x0e\x44\x65legateResult\x12\x0e\n\x04text\x18\x01 \x01(\tH\x00\x12\'\n\x04json\x18\x02 \x01(\x0b\x32\x17.google.protobuf.StructH\x00\x42\t\n\x07\x63ontent\"2\n\x0eRememberResult\x12\x0e\n\x06status\x18\x01 \x01(\t\x12\x10\n\x08\x65ntry_id\x18\x02 \x01(\t\"T\n\rRecallPayload\x12\r\n\x05query\x18\x01 \x01(\t\x12\x10\n\x08keywords\x18\x02 \x03(\t\x12\r\n\x05scope\x18\x03 \x01(\t\x12\x13\n\x0bmax_results\x18\x04 \x01(\x05\"4\n\x0cRecallResult\x12$\n\x07\x65ntries\x18\x01 \x03(\x0b\x32\x13.denden.RecallEntry\"`\n\x0bRecallEntry\x12\x10\n\x08\x65ntry_id\x18\x01 \x01(\t\x12\x0f\n\x07\x63ontent\x18\x02 \x01(\t\x12\x10\n\x08keywords\x18\x03 \x03(\t\x12\r\n\x05scope\x18\x04 \x01(\t\x12\r\n\x05score\x18\x05 \x01(\x01\"\x0f\n\rStatusRequest\"?\n\x0eStatusResponse\x12\x16\n\x0euptime_seconds\x18\x01 \x01(\x03\x12\x15\n\ractive_agents\x18\x02 \x01(\x05*\x1c\n\x06\x46ormat\x12\x08\n\x04TEXT\x10\x00\x12\x08\n\x04JSON\x10\x01*/\n\x0eResponseStatus\x12\x06\n\x02OK\x10\x00\x12\n\n\x06\x44\x45NIED\x10\x01\x12\t\n\x05\x45RROR\x10\x02\x32x\n\x06\x44\x65nden\x12\x35\n\x04Send\x12\x15.denden.DenDenRequest\x1a\x16.denden.DenDenResponse\x12\x37\n\x06Status\x12\x15.denden.StatusRequest\x1a\x16.denden.StatusResponseB+Z)github.com/strawpot/denden/cli/gen/dendenb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -34,36 +34,42 @@ _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'denden_pb2', _globals)
 if not _descriptor._USE_C_DESCRIPTORS:
   _globals['DESCRIPTOR']._loaded_options = None
   _globals['DESCRIPTOR']._serialized_options = b'Z)github.com/strawpot/denden/cli/gen/denden'
-  _globals['_FORMAT']._serialized_start=1522
-  _globals['_FORMAT']._serialized_end=1550
-  _globals['_RESPONSESTATUS']._serialized_start=1552
-  _globals['_RESPONSESTATUS']._serialized_end=1599
+  _globals['_FORMAT']._serialized_start=1848
+  _globals['_FORMAT']._serialized_end=1876
+  _globals['_RESPONSESTATUS']._serialized_start=1878
+  _globals['_RESPONSESTATUS']._serialized_end=1925
   _globals['_DENDENREQUEST']._serialized_start=88
-  _globals['_DENDENREQUEST']._serialized_end=322
-  _globals['_TRACE']._serialized_start=325
-  _globals['_TRACE']._serialized_end=457
-  _globals['_ASKUSERPAYLOAD']._serialized_start=460
-  _globals['_ASKUSERPAYLOAD']._serialized_end=588
-  _globals['_DELEGATEPAYLOAD']._serialized_start=590
-  _globals['_DELEGATEPAYLOAD']._serialized_end=656
-  _globals['_TASK']._serialized_start=658
-  _globals['_TASK']._serialized_end=780
-  _globals['_REMEMBERPAYLOAD']._serialized_start=782
-  _globals['_REMEMBERPAYLOAD']._serialized_end=849
-  _globals['_DENDENRESPONSE']._serialized_start=852
-  _globals['_DENDENRESPONSE']._serialized_end=1150
-  _globals['_ERRORDETAIL']._serialized_start=1152
-  _globals['_ERRORDETAIL']._serialized_end=1215
-  _globals['_ASKUSERRESULT']._serialized_start=1217
-  _globals['_ASKUSERRESULT']._serialized_end=1300
-  _globals['_DELEGATERESULT']._serialized_start=1302
-  _globals['_DELEGATERESULT']._serialized_end=1386
-  _globals['_REMEMBERRESULT']._serialized_start=1388
-  _globals['_REMEMBERRESULT']._serialized_end=1438
-  _globals['_STATUSREQUEST']._serialized_start=1440
-  _globals['_STATUSREQUEST']._serialized_end=1455
-  _globals['_STATUSRESPONSE']._serialized_start=1457
-  _globals['_STATUSRESPONSE']._serialized_end=1520
-  _globals['_DENDEN']._serialized_start=1601
-  _globals['_DENDEN']._serialized_end=1721
+  _globals['_DENDENREQUEST']._serialized_end=363
+  _globals['_TRACE']._serialized_start=366
+  _globals['_TRACE']._serialized_end=498
+  _globals['_ASKUSERPAYLOAD']._serialized_start=501
+  _globals['_ASKUSERPAYLOAD']._serialized_end=629
+  _globals['_DELEGATEPAYLOAD']._serialized_start=631
+  _globals['_DELEGATEPAYLOAD']._serialized_end=697
+  _globals['_TASK']._serialized_start=699
+  _globals['_TASK']._serialized_end=821
+  _globals['_REMEMBERPAYLOAD']._serialized_start=823
+  _globals['_REMEMBERPAYLOAD']._serialized_end=890
+  _globals['_DENDENRESPONSE']._serialized_start=893
+  _globals['_DENDENRESPONSE']._serialized_end=1238
+  _globals['_ERRORDETAIL']._serialized_start=1240
+  _globals['_ERRORDETAIL']._serialized_end=1303
+  _globals['_ASKUSERRESULT']._serialized_start=1305
+  _globals['_ASKUSERRESULT']._serialized_end=1388
+  _globals['_DELEGATERESULT']._serialized_start=1390
+  _globals['_DELEGATERESULT']._serialized_end=1474
+  _globals['_REMEMBERRESULT']._serialized_start=1476
+  _globals['_REMEMBERRESULT']._serialized_end=1526
+  _globals['_RECALLPAYLOAD']._serialized_start=1528
+  _globals['_RECALLPAYLOAD']._serialized_end=1612
+  _globals['_RECALLRESULT']._serialized_start=1614
+  _globals['_RECALLRESULT']._serialized_end=1666
+  _globals['_RECALLENTRY']._serialized_start=1668
+  _globals['_RECALLENTRY']._serialized_end=1764
+  _globals['_STATUSREQUEST']._serialized_start=1766
+  _globals['_STATUSREQUEST']._serialized_end=1781
+  _globals['_STATUSRESPONSE']._serialized_start=1783
+  _globals['_STATUSRESPONSE']._serialized_end=1846
+  _globals['_DENDEN']._serialized_start=1927
+  _globals['_DENDEN']._serialized_end=2047
 # @@protoc_insertion_point(module_scope)

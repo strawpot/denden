@@ -36,7 +36,7 @@ class DendenServicer(denden_pb2_grpc.DendenServicer):
         self._handlers: dict[str, RequestHandler] = {}
 
     def set_handler(self, payload_key: str, handler: RequestHandler) -> None:
-        """Register a handler for a payload type ('ask_user', 'delegate', or 'remember')."""
+        """Register a handler for a payload type ('ask_user', 'delegate', 'remember', or 'recall')."""
         self._handlers[payload_key] = handler
 
     def Send(self, request: denden_pb2.DenDenRequest, context) -> denden_pb2.DenDenResponse:
@@ -55,7 +55,7 @@ class DendenServicer(denden_pb2_grpc.DendenServicer):
             return _error_response(
                 request.request_id,
                 "INVALID_REQUEST",
-                "a payload field (ask_user, delegate, or remember) is required",
+                "a payload field (ask_user, delegate, remember, or recall) is required",
                 retryable=False,
             )
 
@@ -96,6 +96,7 @@ def ok_response(
     ask_user_result: denden_pb2.AskUserResult | None = None,
     delegate_result: denden_pb2.DelegateResult | None = None,
     remember_result: "denden_pb2.RememberResult | None" = None,
+    recall_result: "denden_pb2.RecallResult | None" = None,
 ) -> denden_pb2.DenDenResponse:
     kwargs: dict = {
         "denden_version": VERSION,
@@ -108,6 +109,8 @@ def ok_response(
         kwargs["delegate_result"] = delegate_result
     if remember_result is not None:
         kwargs["remember_result"] = remember_result
+    if recall_result is not None:
+        kwargs["recall_result"] = recall_result
     return denden_pb2.DenDenResponse(**kwargs)
 
 
@@ -190,6 +193,10 @@ class DenDenServer:
     def on_remember(self, handler: RequestHandler) -> None:
         """Register a handler for remember requests."""
         self._servicer.set_handler("remember", handler)
+
+    def on_recall(self, handler: RequestHandler) -> None:
+        """Register a handler for recall requests."""
+        self._servicer.set_handler("recall", handler)
 
     @property
     def bound_addr(self) -> str:
