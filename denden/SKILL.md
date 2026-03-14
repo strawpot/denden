@@ -35,6 +35,7 @@ These variables are set by the orchestrator when it spawns you as an agent:
 | `DENDEN_PARENT_AGENT_ID` | — | Parent agent's instance ID |
 | `DENDEN_RUN_ID` | — | Current run ID |
 | `DENDEN_TIMEOUT` | `30s` | Request timeout |
+| `STRAWPOT_ROLE` | — | Your own role slug (useful for self-delegation) |
 
 ## Ask the user a question
 
@@ -76,11 +77,27 @@ denden send '{"delegate":{"delegateTo":"code-reviewer","task":{"text":"Review th
 
 | Field | Type | Required | Description |
 |---|---|---|---|
-| `delegateTo` | string | yes | Exact role slug (see Delegation section of your prompt) |
+| `delegateTo` | string | yes | Exact role slug, or empty string `""` for self-delegation |
 | `task.text` | string | yes | Task description |
 | `task.artifactRefs` | string[] | no | References to input artifacts |
 | `task.extra` | object | no | Additional key-value context |
 | `task.returnFormat` | Format | no | Expected output format (`TEXT` or `JSON`) |
+
+### Self-delegation
+
+To delegate to a fresh instance of your own role, set `delegateTo` to an empty string. The orchestrator resolves it to your role slug automatically. This is useful for iterative self-improvement workflows.
+
+```bash
+denden send '{"delegate":{"delegateTo":"","task":{"text":"Evaluate this output: ..."}}}'
+```
+
+You can also use `$STRAWPOT_ROLE` to reference your own role slug explicitly:
+
+```bash
+denden send "{\"delegate\":{\"delegateTo\":\"$STRAWPOT_ROLE\",\"task\":{\"text\":\"Evaluate this output: ...\"}}}"
+```
+
+Both approaches are equivalent. Self-delegation consumes one level of delegation depth — `max_depth` prevents infinite loops.
 
 ### Reading the response
 
