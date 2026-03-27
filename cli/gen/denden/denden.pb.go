@@ -129,6 +129,7 @@ type DenDenRequest struct {
 	//	*DenDenRequest_Delegate
 	//	*DenDenRequest_Remember
 	//	*DenDenRequest_Recall
+	//	*DenDenRequest_Cancel
 	Payload       isDenDenRequest_Payload `protobuf_oneof:"payload"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -228,6 +229,15 @@ func (x *DenDenRequest) GetRecall() *RecallPayload {
 	return nil
 }
 
+func (x *DenDenRequest) GetCancel() *CancelPayload {
+	if x != nil {
+		if x, ok := x.Payload.(*DenDenRequest_Cancel); ok {
+			return x.Cancel
+		}
+	}
+	return nil
+}
+
 type isDenDenRequest_Payload interface {
 	isDenDenRequest_Payload()
 }
@@ -248,6 +258,10 @@ type DenDenRequest_Recall struct {
 	Recall *RecallPayload `protobuf:"bytes,13,opt,name=recall,proto3,oneof"`
 }
 
+type DenDenRequest_Cancel struct {
+	Cancel *CancelPayload `protobuf:"bytes,14,opt,name=cancel,proto3,oneof"`
+}
+
 func (*DenDenRequest_AskUser) isDenDenRequest_Payload() {}
 
 func (*DenDenRequest_Delegate) isDenDenRequest_Payload() {}
@@ -255,6 +269,8 @@ func (*DenDenRequest_Delegate) isDenDenRequest_Payload() {}
 func (*DenDenRequest_Remember) isDenDenRequest_Payload() {}
 
 func (*DenDenRequest_Recall) isDenDenRequest_Payload() {}
+
+func (*DenDenRequest_Cancel) isDenDenRequest_Payload() {}
 
 type Trace struct {
 	state                 protoimpl.MessageState `protogen:"open.v1"`
@@ -592,6 +608,7 @@ type DenDenResponse struct {
 	//	*DenDenResponse_DelegateResult
 	//	*DenDenResponse_RememberResult
 	//	*DenDenResponse_RecallResult
+	//	*DenDenResponse_CancelResult
 	Result        isDenDenResponse_Result `protobuf_oneof:"result"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -698,6 +715,15 @@ func (x *DenDenResponse) GetRecallResult() *RecallResult {
 	return nil
 }
 
+func (x *DenDenResponse) GetCancelResult() *CancelResult {
+	if x != nil {
+		if x, ok := x.Result.(*DenDenResponse_CancelResult); ok {
+			return x.CancelResult
+		}
+	}
+	return nil
+}
+
 type isDenDenResponse_Result interface {
 	isDenDenResponse_Result()
 }
@@ -718,6 +744,10 @@ type DenDenResponse_RecallResult struct {
 	RecallResult *RecallResult `protobuf:"bytes,13,opt,name=recall_result,json=recallResult,proto3,oneof"`
 }
 
+type DenDenResponse_CancelResult struct {
+	CancelResult *CancelResult `protobuf:"bytes,14,opt,name=cancel_result,json=cancelResult,proto3,oneof"`
+}
+
 func (*DenDenResponse_AskUserResult) isDenDenResponse_Result() {}
 
 func (*DenDenResponse_DelegateResult) isDenDenResponse_Result() {}
@@ -725,6 +755,8 @@ func (*DenDenResponse_DelegateResult) isDenDenResponse_Result() {}
 func (*DenDenResponse_RememberResult) isDenDenResponse_Result() {}
 
 func (*DenDenResponse_RecallResult) isDenDenResponse_Result() {}
+
+func (*DenDenResponse_CancelResult) isDenDenResponse_Result() {}
 
 type ErrorDetail struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -1190,6 +1222,102 @@ func (x *RecallEntry) GetScore() float64 {
 	return 0
 }
 
+type CancelPayload struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	AgentId       string                 `protobuf:"bytes,1,opt,name=agent_id,json=agentId,proto3" json:"agent_id,omitempty"` // Agent to cancel
+	Force         bool                   `protobuf:"varint,2,opt,name=force,proto3" json:"force,omitempty"`                   // Skip graceful shutdown
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CancelPayload) Reset() {
+	*x = CancelPayload{}
+	mi := &file_denden_proto_msgTypes[14]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CancelPayload) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CancelPayload) ProtoMessage() {}
+
+func (x *CancelPayload) ProtoReflect() protoreflect.Message {
+	mi := &file_denden_proto_msgTypes[14]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CancelPayload.ProtoReflect.Descriptor instead.
+func (*CancelPayload) Descriptor() ([]byte, []int) {
+	return file_denden_proto_rawDescGZIP(), []int{14}
+}
+
+func (x *CancelPayload) GetAgentId() string {
+	if x != nil {
+		return x.AgentId
+	}
+	return ""
+}
+
+func (x *CancelPayload) GetForce() bool {
+	if x != nil {
+		return x.Force
+	}
+	return false
+}
+
+type CancelResult struct {
+	state           protoimpl.MessageState `protogen:"open.v1"`
+	CancelledAgents []string               `protobuf:"bytes,1,rep,name=cancelled_agents,json=cancelledAgents,proto3" json:"cancelled_agents,omitempty"` // IDs of all cancelled agents
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+func (x *CancelResult) Reset() {
+	*x = CancelResult{}
+	mi := &file_denden_proto_msgTypes[15]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CancelResult) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CancelResult) ProtoMessage() {}
+
+func (x *CancelResult) ProtoReflect() protoreflect.Message {
+	mi := &file_denden_proto_msgTypes[15]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CancelResult.ProtoReflect.Descriptor instead.
+func (*CancelResult) Descriptor() ([]byte, []int) {
+	return file_denden_proto_rawDescGZIP(), []int{15}
+}
+
+func (x *CancelResult) GetCancelledAgents() []string {
+	if x != nil {
+		return x.CancelledAgents
+	}
+	return nil
+}
+
 type StatusRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
@@ -1198,7 +1326,7 @@ type StatusRequest struct {
 
 func (x *StatusRequest) Reset() {
 	*x = StatusRequest{}
-	mi := &file_denden_proto_msgTypes[14]
+	mi := &file_denden_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1210,7 +1338,7 @@ func (x *StatusRequest) String() string {
 func (*StatusRequest) ProtoMessage() {}
 
 func (x *StatusRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_denden_proto_msgTypes[14]
+	mi := &file_denden_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1223,7 +1351,7 @@ func (x *StatusRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StatusRequest.ProtoReflect.Descriptor instead.
 func (*StatusRequest) Descriptor() ([]byte, []int) {
-	return file_denden_proto_rawDescGZIP(), []int{14}
+	return file_denden_proto_rawDescGZIP(), []int{16}
 }
 
 type StatusResponse struct {
@@ -1236,7 +1364,7 @@ type StatusResponse struct {
 
 func (x *StatusResponse) Reset() {
 	*x = StatusResponse{}
-	mi := &file_denden_proto_msgTypes[15]
+	mi := &file_denden_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1248,7 +1376,7 @@ func (x *StatusResponse) String() string {
 func (*StatusResponse) ProtoMessage() {}
 
 func (x *StatusResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_denden_proto_msgTypes[15]
+	mi := &file_denden_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1261,7 +1389,7 @@ func (x *StatusResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StatusResponse.ProtoReflect.Descriptor instead.
 func (*StatusResponse) Descriptor() ([]byte, []int) {
-	return file_denden_proto_rawDescGZIP(), []int{15}
+	return file_denden_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *StatusResponse) GetUptimeSeconds() int64 {
@@ -1282,7 +1410,7 @@ var File_denden_proto protoreflect.FileDescriptor
 
 const file_denden_proto_rawDesc = "" +
 	"\n" +
-	"\fdenden.proto\x12\x06denden\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1cgoogle/protobuf/struct.proto\"\xd9\x02\n" +
+	"\fdenden.proto\x12\x06denden\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1cgoogle/protobuf/struct.proto\"\x8a\x03\n" +
 	"\rDenDenRequest\x12%\n" +
 	"\x0edenden_version\x18\x01 \x01(\tR\rdendenVersion\x12\x1d\n" +
 	"\n" +
@@ -1292,7 +1420,8 @@ const file_denden_proto_rawDesc = "" +
 	" \x01(\v2\x16.denden.AskUserPayloadH\x00R\aaskUser\x125\n" +
 	"\bdelegate\x18\v \x01(\v2\x17.denden.DelegatePayloadH\x00R\bdelegate\x125\n" +
 	"\bremember\x18\f \x01(\v2\x17.denden.RememberPayloadH\x00R\bremember\x12/\n" +
-	"\x06recall\x18\r \x01(\v2\x15.denden.RecallPayloadH\x00R\x06recallB\t\n" +
+	"\x06recall\x18\r \x01(\v2\x15.denden.RecallPayloadH\x00R\x06recall\x12/\n" +
+	"\x06cancel\x18\x0e \x01(\v2\x15.denden.CancelPayloadH\x00R\x06cancelB\t\n" +
 	"\apayload\"\xbe\x01\n" +
 	"\x05Trace\x12\x15\n" +
 	"\x06run_id\x18\x01 \x01(\tR\x05runId\x12*\n" +
@@ -1318,7 +1447,7 @@ const file_denden_proto_rawDesc = "" +
 	"\x0fRememberPayload\x12\x18\n" +
 	"\acontent\x18\x01 \x01(\tR\acontent\x12\x1a\n" +
 	"\bkeywords\x18\x02 \x03(\tR\bkeywords\x12\x14\n" +
-	"\x05scope\x18\x03 \x01(\tR\x05scope\"\xbf\x03\n" +
+	"\x05scope\x18\x03 \x01(\tR\x05scope\"\xfc\x03\n" +
 	"\x0eDenDenResponse\x12%\n" +
 	"\x0edenden_version\x18\x01 \x01(\tR\rdendenVersion\x12\x1d\n" +
 	"\n" +
@@ -1329,7 +1458,8 @@ const file_denden_proto_rawDesc = "" +
 	" \x01(\v2\x15.denden.AskUserResultH\x00R\raskUserResult\x12A\n" +
 	"\x0fdelegate_result\x18\v \x01(\v2\x16.denden.DelegateResultH\x00R\x0edelegateResult\x12A\n" +
 	"\x0fremember_result\x18\f \x01(\v2\x16.denden.RememberResultH\x00R\x0erememberResult\x12;\n" +
-	"\rrecall_result\x18\r \x01(\v2\x14.denden.RecallResultH\x00R\frecallResultB\b\n" +
+	"\rrecall_result\x18\r \x01(\v2\x14.denden.RecallResultH\x00R\frecallResult\x12;\n" +
+	"\rcancel_result\x18\x0e \x01(\v2\x14.denden.CancelResultH\x00R\fcancelResultB\b\n" +
 	"\x06result\"Y\n" +
 	"\vErrorDetail\x12\x12\n" +
 	"\x04code\x18\x01 \x01(\tR\x04code\x12\x18\n" +
@@ -1359,7 +1489,12 @@ const file_denden_proto_rawDesc = "" +
 	"\acontent\x18\x02 \x01(\tR\acontent\x12\x1a\n" +
 	"\bkeywords\x18\x03 \x03(\tR\bkeywords\x12\x14\n" +
 	"\x05scope\x18\x04 \x01(\tR\x05scope\x12\x14\n" +
-	"\x05score\x18\x05 \x01(\x01R\x05score\"\x0f\n" +
+	"\x05score\x18\x05 \x01(\x01R\x05score\"@\n" +
+	"\rCancelPayload\x12\x19\n" +
+	"\bagent_id\x18\x01 \x01(\tR\aagentId\x12\x14\n" +
+	"\x05force\x18\x02 \x01(\bR\x05force\"9\n" +
+	"\fCancelResult\x12)\n" +
+	"\x10cancelled_agents\x18\x01 \x03(\tR\x0fcancelledAgents\"\x0f\n" +
 	"\rStatusRequest\"\\\n" +
 	"\x0eStatusResponse\x12%\n" +
 	"\x0euptime_seconds\x18\x01 \x01(\x03R\ruptimeSeconds\x12#\n" +
@@ -1389,7 +1524,7 @@ func file_denden_proto_rawDescGZIP() []byte {
 }
 
 var file_denden_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-var file_denden_proto_msgTypes = make([]protoimpl.MessageInfo, 16)
+var file_denden_proto_msgTypes = make([]protoimpl.MessageInfo, 18)
 var file_denden_proto_goTypes = []any{
 	(Format)(0),                   // 0: denden.Format
 	(ResponseStatus)(0),           // 1: denden.ResponseStatus
@@ -1407,10 +1542,12 @@ var file_denden_proto_goTypes = []any{
 	(*RecallPayload)(nil),         // 13: denden.RecallPayload
 	(*RecallResult)(nil),          // 14: denden.RecallResult
 	(*RecallEntry)(nil),           // 15: denden.RecallEntry
-	(*StatusRequest)(nil),         // 16: denden.StatusRequest
-	(*StatusResponse)(nil),        // 17: denden.StatusResponse
-	(*timestamppb.Timestamp)(nil), // 18: google.protobuf.Timestamp
-	(*structpb.Struct)(nil),       // 19: google.protobuf.Struct
+	(*CancelPayload)(nil),         // 16: denden.CancelPayload
+	(*CancelResult)(nil),          // 17: denden.CancelResult
+	(*StatusRequest)(nil),         // 18: denden.StatusRequest
+	(*StatusResponse)(nil),        // 19: denden.StatusResponse
+	(*timestamppb.Timestamp)(nil), // 20: google.protobuf.Timestamp
+	(*structpb.Struct)(nil),       // 21: google.protobuf.Struct
 }
 var file_denden_proto_depIdxs = []int32{
 	3,  // 0: denden.DenDenRequest.trace:type_name -> denden.Trace
@@ -1418,29 +1555,31 @@ var file_denden_proto_depIdxs = []int32{
 	5,  // 2: denden.DenDenRequest.delegate:type_name -> denden.DelegatePayload
 	7,  // 3: denden.DenDenRequest.remember:type_name -> denden.RememberPayload
 	13, // 4: denden.DenDenRequest.recall:type_name -> denden.RecallPayload
-	18, // 5: denden.Trace.created_at:type_name -> google.protobuf.Timestamp
-	0,  // 6: denden.AskUserPayload.response_format:type_name -> denden.Format
-	6,  // 7: denden.DelegatePayload.task:type_name -> denden.Task
-	19, // 8: denden.Task.extra:type_name -> google.protobuf.Struct
-	0,  // 9: denden.Task.return_format:type_name -> denden.Format
-	1,  // 10: denden.DenDenResponse.status:type_name -> denden.ResponseStatus
-	9,  // 11: denden.DenDenResponse.error:type_name -> denden.ErrorDetail
-	10, // 12: denden.DenDenResponse.ask_user_result:type_name -> denden.AskUserResult
-	11, // 13: denden.DenDenResponse.delegate_result:type_name -> denden.DelegateResult
-	12, // 14: denden.DenDenResponse.remember_result:type_name -> denden.RememberResult
-	14, // 15: denden.DenDenResponse.recall_result:type_name -> denden.RecallResult
-	19, // 16: denden.AskUserResult.json:type_name -> google.protobuf.Struct
-	19, // 17: denden.DelegateResult.json:type_name -> google.protobuf.Struct
-	15, // 18: denden.RecallResult.entries:type_name -> denden.RecallEntry
-	2,  // 19: denden.Denden.Send:input_type -> denden.DenDenRequest
-	16, // 20: denden.Denden.Status:input_type -> denden.StatusRequest
-	8,  // 21: denden.Denden.Send:output_type -> denden.DenDenResponse
-	17, // 22: denden.Denden.Status:output_type -> denden.StatusResponse
-	21, // [21:23] is the sub-list for method output_type
-	19, // [19:21] is the sub-list for method input_type
-	19, // [19:19] is the sub-list for extension type_name
-	19, // [19:19] is the sub-list for extension extendee
-	0,  // [0:19] is the sub-list for field type_name
+	16, // 5: denden.DenDenRequest.cancel:type_name -> denden.CancelPayload
+	20, // 6: denden.Trace.created_at:type_name -> google.protobuf.Timestamp
+	0,  // 7: denden.AskUserPayload.response_format:type_name -> denden.Format
+	6,  // 8: denden.DelegatePayload.task:type_name -> denden.Task
+	21, // 9: denden.Task.extra:type_name -> google.protobuf.Struct
+	0,  // 10: denden.Task.return_format:type_name -> denden.Format
+	1,  // 11: denden.DenDenResponse.status:type_name -> denden.ResponseStatus
+	9,  // 12: denden.DenDenResponse.error:type_name -> denden.ErrorDetail
+	10, // 13: denden.DenDenResponse.ask_user_result:type_name -> denden.AskUserResult
+	11, // 14: denden.DenDenResponse.delegate_result:type_name -> denden.DelegateResult
+	12, // 15: denden.DenDenResponse.remember_result:type_name -> denden.RememberResult
+	14, // 16: denden.DenDenResponse.recall_result:type_name -> denden.RecallResult
+	17, // 17: denden.DenDenResponse.cancel_result:type_name -> denden.CancelResult
+	21, // 18: denden.AskUserResult.json:type_name -> google.protobuf.Struct
+	21, // 19: denden.DelegateResult.json:type_name -> google.protobuf.Struct
+	15, // 20: denden.RecallResult.entries:type_name -> denden.RecallEntry
+	2,  // 21: denden.Denden.Send:input_type -> denden.DenDenRequest
+	18, // 22: denden.Denden.Status:input_type -> denden.StatusRequest
+	8,  // 23: denden.Denden.Send:output_type -> denden.DenDenResponse
+	19, // 24: denden.Denden.Status:output_type -> denden.StatusResponse
+	23, // [23:25] is the sub-list for method output_type
+	21, // [21:23] is the sub-list for method input_type
+	21, // [21:21] is the sub-list for extension type_name
+	21, // [21:21] is the sub-list for extension extendee
+	0,  // [0:21] is the sub-list for field type_name
 }
 
 func init() { file_denden_proto_init() }
@@ -1453,12 +1592,14 @@ func file_denden_proto_init() {
 		(*DenDenRequest_Delegate)(nil),
 		(*DenDenRequest_Remember)(nil),
 		(*DenDenRequest_Recall)(nil),
+		(*DenDenRequest_Cancel)(nil),
 	}
 	file_denden_proto_msgTypes[6].OneofWrappers = []any{
 		(*DenDenResponse_AskUserResult)(nil),
 		(*DenDenResponse_DelegateResult)(nil),
 		(*DenDenResponse_RememberResult)(nil),
 		(*DenDenResponse_RecallResult)(nil),
+		(*DenDenResponse_CancelResult)(nil),
 	}
 	file_denden_proto_msgTypes[8].OneofWrappers = []any{
 		(*AskUserResult_Text)(nil),
@@ -1474,7 +1615,7 @@ func file_denden_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_denden_proto_rawDesc), len(file_denden_proto_rawDesc)),
 			NumEnums:      2,
-			NumMessages:   16,
+			NumMessages:   18,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
