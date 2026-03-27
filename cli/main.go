@@ -95,8 +95,8 @@ func handleSend() {
 	}
 
 	// Validate that a payload is set (oneof).
-	if req.GetAskUser() == nil && req.GetDelegate() == nil && req.GetRemember() == nil && req.GetRecall() == nil {
-		fmt.Fprintln(os.Stderr, "error: a payload field (askUser, delegate, remember, or recall) is required")
+	if req.GetAskUser() == nil && req.GetDelegate() == nil && req.GetRemember() == nil && req.GetRecall() == nil && req.GetCancel() == nil {
+		fmt.Fprintln(os.Stderr, "error: a payload field (askUser, delegate, remember, recall, or cancel) is required")
 		os.Exit(1)
 	}
 

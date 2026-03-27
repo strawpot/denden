@@ -198,6 +198,10 @@ class DenDenServer:
         """Register a handler for recall requests."""
         self._servicer.set_handler("recall", handler)
 
+    def on_cancel(self, handler: RequestHandler) -> None:
+        """Register a handler for cancel requests."""
+        self._servicer.set_handler("cancel", handler)
+
     @property
     def bound_addr(self) -> str:
         """Actual ``host:port`` the server is listening on.

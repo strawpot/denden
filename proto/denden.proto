@@ -33,6 +33,7 @@ message DenDenRequest {
     DelegatePayload delegate = 11;
     RememberPayload remember = 12;
     RecallPayload recall = 13;
+    CancelPayload cancel = 14;
   }
 }
 
@@ -101,6 +102,7 @@ message DenDenResponse {
     DelegateResult delegate_result = 11;
     RememberResult remember_result = 12;
     RecallResult recall_result = 13;
+    CancelResult cancel_result = 14;
   }
 }
 
@@ -168,6 +170,19 @@ message RecallEntry {
   repeated string keywords = 3;
   string scope = 4;
   double score = 5;
+}
+
+// ---------------------------------------------------------------------------
+// cancel
+// ---------------------------------------------------------------------------
+
+message CancelPayload {
+  string agent_id = 1;        // Agent to cancel
+  bool force = 2;             // Skip graceful shutdown
+}
+
+message CancelResult {
+  repeated string cancelled_agents = 1;  // IDs of all cancelled agents
 }
 
 // ---------------------------------------------------------------------------
