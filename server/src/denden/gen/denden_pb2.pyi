@@ -28,7 +28,7 @@ DENIED: ResponseStatus
 ERROR: ResponseStatus
 
 class DenDenRequest(_message.Message):
-    __slots__ = ("denden_version", "request_id", "trace", "ask_user", "delegate", "remember", "recall")
+    __slots__ = ("denden_version", "request_id", "trace", "ask_user", "delegate", "remember", "recall", "cancel")
     DENDEN_VERSION_FIELD_NUMBER: _ClassVar[int]
     REQUEST_ID_FIELD_NUMBER: _ClassVar[int]
     TRACE_FIELD_NUMBER: _ClassVar[int]
@@ -36,6 +36,7 @@ class DenDenRequest(_message.Message):
     DELEGATE_FIELD_NUMBER: _ClassVar[int]
     REMEMBER_FIELD_NUMBER: _ClassVar[int]
     RECALL_FIELD_NUMBER: _ClassVar[int]
+    CANCEL_FIELD_NUMBER: _ClassVar[int]
     denden_version: str
     request_id: str
     trace: Trace
@@ -43,7 +44,8 @@ class DenDenRequest(_message.Message):
     delegate: DelegatePayload
     remember: RememberPayload
     recall: RecallPayload
-    def __init__(self, denden_version: _Optional[str] = ..., request_id: _Optional[str] = ..., trace: _Optional[_Union[Trace, _Mapping]] = ..., ask_user: _Optional[_Union[AskUserPayload, _Mapping]] = ..., delegate: _Optional[_Union[DelegatePayload, _Mapping]] = ..., remember: _Optional[_Union[RememberPayload, _Mapping]] = ..., recall: _Optional[_Union[RecallPayload, _Mapping]] = ...) -> None: ...
+    cancel: CancelPayload
+    def __init__(self, denden_version: _Optional[str] = ..., request_id: _Optional[str] = ..., trace: _Optional[_Union[Trace, _Mapping]] = ..., ask_user: _Optional[_Union[AskUserPayload, _Mapping]] = ..., delegate: _Optional[_Union[DelegatePayload, _Mapping]] = ..., remember: _Optional[_Union[RememberPayload, _Mapping]] = ..., recall: _Optional[_Union[RecallPayload, _Mapping]] = ..., cancel: _Optional[_Union[CancelPayload, _Mapping]] = ...) -> None: ...
 
 class Trace(_message.Message):
     __slots__ = ("run_id", "agent_instance_id", "parent_agent_instance_id", "created_at")
@@ -102,7 +104,7 @@ class RememberPayload(_message.Message):
     def __init__(self, content: _Optional[str] = ..., keywords: _Optional[_Iterable[str]] = ..., scope: _Optional[str] = ...) -> None: ...
 
 class DenDenResponse(_message.Message):
-    __slots__ = ("denden_version", "request_id", "status", "error", "ask_user_result", "delegate_result", "remember_result", "recall_result")
+    __slots__ = ("denden_version", "request_id", "status", "error", "ask_user_result", "delegate_result", "remember_result", "recall_result", "cancel_result")
     DENDEN_VERSION_FIELD_NUMBER: _ClassVar[int]
     REQUEST_ID_FIELD_NUMBER: _ClassVar[int]
     STATUS_FIELD_NUMBER: _ClassVar[int]
@@ -111,6 +113,7 @@ class DenDenResponse(_message.Message):
     DELEGATE_RESULT_FIELD_NUMBER: _ClassVar[int]
     REMEMBER_RESULT_FIELD_NUMBER: _ClassVar[int]
     RECALL_RESULT_FIELD_NUMBER: _ClassVar[int]
+    CANCEL_RESULT_FIELD_NUMBER: _ClassVar[int]
     denden_version: str
     request_id: str
     status: ResponseStatus
@@ -119,7 +122,8 @@ class DenDenResponse(_message.Message):
     delegate_result: DelegateResult
     remember_result: RememberResult
     recall_result: RecallResult
-    def __init__(self, denden_version: _Optional[str] = ..., request_id: _Optional[str] = ..., status: _Optional[_Union[ResponseStatus, str]] = ..., error: _Optional[_Union[ErrorDetail, _Mapping]] = ..., ask_user_result: _Optional[_Union[AskUserResult, _Mapping]] = ..., delegate_result: _Optional[_Union[DelegateResult, _Mapping]] = ..., remember_result: _Optional[_Union[RememberResult, _Mapping]] = ..., recall_result: _Optional[_Union[RecallResult, _Mapping]] = ...) -> None: ...
+    cancel_result: CancelResult
+    def __init__(self, denden_version: _Optional[str] = ..., request_id: _Optional[str] = ..., status: _Optional[_Union[ResponseStatus, str]] = ..., error: _Optional[_Union[ErrorDetail, _Mapping]] = ..., ask_user_result: _Optional[_Union[AskUserResult, _Mapping]] = ..., delegate_result: _Optional[_Union[DelegateResult, _Mapping]] = ..., remember_result: _Optional[_Union[RememberResult, _Mapping]] = ..., recall_result: _Optional[_Union[RecallResult, _Mapping]] = ..., cancel_result: _Optional[_Union[CancelResult, _Mapping]] = ...) -> None: ...
 
 class ErrorDetail(_message.Message):
     __slots__ = ("code", "message", "retryable")
@@ -186,6 +190,20 @@ class RecallEntry(_message.Message):
     scope: str
     score: float
     def __init__(self, entry_id: _Optional[str] = ..., content: _Optional[str] = ..., keywords: _Optional[_Iterable[str]] = ..., scope: _Optional[str] = ..., score: _Optional[float] = ...) -> None: ...
+
+class CancelPayload(_message.Message):
+    __slots__ = ("agent_id", "force")
+    AGENT_ID_FIELD_NUMBER: _ClassVar[int]
+    FORCE_FIELD_NUMBER: _ClassVar[int]
+    agent_id: str
+    force: bool
+    def __init__(self, agent_id: _Optional[str] = ..., force: bool = ...) -> None: ...
+
+class CancelResult(_message.Message):
+    __slots__ = ("cancelled_agents",)
+    CANCELLED_AGENTS_FIELD_NUMBER: _ClassVar[int]
+    cancelled_agents: _containers.RepeatedScalarFieldContainer[str]
+    def __init__(self, cancelled_agents: _Optional[_Iterable[str]] = ...) -> None: ...
 
 class StatusRequest(_message.Message):
     __slots__ = ()
